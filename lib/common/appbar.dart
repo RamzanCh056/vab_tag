@@ -1,17 +1,14 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:vab_tag/chat/artboard8.dart';
-import 'package:vab_tag/product_Screen/productScreen.dart';
-
-import '../Campaigns/campaigns.dart';
-import '../buzin/buzzin_screen.dart';
-
-import '../my_ads_screen/my_ads.dart';
-import '../shop_cart_screen/shop_cart.dart';
-import '../trending_event/trending_event.dart';
+import '../screens/Campaigns/campaigns.dart';
+import '../screens/buzin/buzzin_screen.dart';
+import '../screens/chat/artboard8.dart';
+import '../screens/my_ads_screen/my_ads.dart';
+import '../screens/product_Screen/productScreen.dart';
+import '../screens/shop_cart_screen/shop_cart.dart';
+import '../screens/trending_event/trending_event.dart';
 
 class CommonAppBar extends StatelessWidget  {
   const CommonAppBar({

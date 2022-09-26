@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import '../find-help_screen/find_help.dart';
-import '../on_sale_screen/onSale.dart';
+
+import '../screens/find-help_screen/find_help.dart';
+import '../screens/on_sale_screen/onSale.dart';
 class BottomWidget extends StatelessWidget {
   const BottomWidget({Key? key}) : super(key: key);
 

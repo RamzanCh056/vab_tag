@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:vab_tag/create_event.dart';
-import '../blogs_one.dart';
-import '../create_business_page.dart';
+import 'package:vab_tag/screens/extra-screens/create_event.dart';
+import '../screens/extra-screens/blogs_one.dart';
+import '../screens/extra-screens/create_business_page.dart';
 
 class TopAppbar extends StatelessWidget {
   const TopAppbar({
