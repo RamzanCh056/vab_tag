@@ -11,8 +11,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:vab_tag/res/static_info.dart';
 import 'package:vab_tag/screens/authentication/signup_screen.dart';
+
 import '../home/drawer.dart';
 import 'login.dart';
+
 var userList;
 
 class AfterRegistration extends StatefulWidget {
@@ -67,8 +69,10 @@ class _AfterRegistrationState extends State<AfterRegistration> {
     }
   }
 
+  // AuthController controller = Get.put(AuthController());
   void initState() {
     loginfunDetails();
+    // controller.getList();
     getList();
     super.initState();
   }
@@ -793,11 +797,12 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                     decoration: BoxDecoration(
                                                       shape: BoxShape.circle,
                                                       image: DecorationImage(
-                                                          image: NetworkImage(userList[0]['avatar']),
-                                                       //   fit: BoxFit.fill
+                                                        image: NetworkImage(
+                                                            userList[0]
+                                                                ['avatar']),
+                                                        //   fit: BoxFit.fill
                                                       ),
                                                     ),
-
                                                   ),
                                                   // CircleAvatar(
                                                   //   backgroundImage: NetworkImage(userList[0]['avatar'],
@@ -1094,29 +1099,29 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                               children: [
                                                 Padding(
                                                   padding:
-                                                  const EdgeInsets.only(
-                                                      left: 5.0,
-                                                      right: 5.0),
+                                                      const EdgeInsets.only(
+                                                          left: 5.0,
+                                                          right: 5.0),
                                                   child: Container(
                                                     width: double.infinity,
                                                     decoration: BoxDecoration(
                                                         color: Colors
                                                             .grey.shade200,
                                                         borderRadius:
-                                                        BorderRadius
-                                                            .circular(12)),
+                                                            BorderRadius
+                                                                .circular(12)),
                                                     child: Column(
                                                       children: [
                                                         ClipRRect(
                                                           borderRadius:
-                                                          BorderRadius
-                                                              .circular(0),
+                                                              BorderRadius
+                                                                  .circular(0),
                                                           child: Image.network(
                                                             userList[1]
-                                                            ['cover'],
+                                                                ['cover'],
                                                             fit: BoxFit.fill,
                                                             width:
-                                                            double.infinity,
+                                                                double.infinity,
                                                           ),
                                                         ),
                                                         Container(
@@ -1127,10 +1132,10 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                               borderRadius: BorderRadius.only(
                                                                   bottomLeft: Radius
                                                                       .circular(
-                                                                      12),
+                                                                          12),
                                                                   bottomRight: Radius
                                                                       .circular(
-                                                                      12))),
+                                                                          12))),
                                                         )
                                                       ],
                                                     ),
@@ -1147,11 +1152,12 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                     decoration: BoxDecoration(
                                                       shape: BoxShape.circle,
                                                       image: DecorationImage(
-                                                        image: NetworkImage(userList[1]['avatar']),
+                                                        image: NetworkImage(
+                                                            userList[1]
+                                                                ['avatar']),
                                                         //   fit: BoxFit.fill
                                                       ),
                                                     ),
-
                                                   ),
                                                   // CircleAvatar(
                                                   //   backgroundImage: NetworkImage(userList[0]['avatar'],
@@ -1171,7 +1177,7 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                     child: CircleAvatar(
                                                       radius: 5,
                                                       backgroundColor:
-                                                      Colors.green,
+                                                          Colors.green,
                                                     )),
                                                 Positioned(
                                                     top: 15,
@@ -1189,18 +1195,18 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                       children: [
                                                         Row(
                                                           mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
+                                                              MainAxisAlignment
+                                                                  .center,
                                                           children: [
                                                             Text(
                                                                 userList[1][
-                                                                'username'],
+                                                                    'username'],
                                                                 style:
-                                                                TextStyle(
+                                                                    TextStyle(
                                                                   fontSize: 15,
                                                                   fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                                      FontWeight
+                                                                          .bold,
                                                                 )),
                                                             CircleAvatar(
                                                                 radius: 6,
@@ -1214,14 +1220,14 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                         ),
                                                         Row(
                                                           mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
+                                                              MainAxisAlignment
+                                                                  .center,
                                                           children: [
                                                             Text(
                                                                 userList[1]
-                                                                ['email'],
+                                                                    ['email'],
                                                                 style:
-                                                                TextStyle(
+                                                                    TextStyle(
                                                                   fontSize: 10,
                                                                 )),
                                                           ],
@@ -1245,51 +1251,51 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                                     color: Colors
                                                                         .white,
                                                                     borderRadius:
-                                                                    BorderRadius.circular(
-                                                                        4)),
+                                                                        BorderRadius.circular(
+                                                                            4)),
                                                                 child: Column(
                                                                   children: [
                                                                     SizedBox(
                                                                         height:
-                                                                        7),
+                                                                            7),
                                                                     Text(
                                                                         'Likes',
                                                                         style: TextStyle(
                                                                             fontSize:
-                                                                            10,
+                                                                                10,
                                                                             fontWeight:
-                                                                            FontWeight.bold,
+                                                                                FontWeight.bold,
                                                                             color: Colors.grey)),
                                                                     Padding(
                                                                       padding: EdgeInsets.only(
                                                                           left:
-                                                                          8.0,
+                                                                              8.0,
                                                                           right:
-                                                                          8),
+                                                                              8),
                                                                       child:
-                                                                      Divider(
+                                                                          Divider(
                                                                         thickness:
-                                                                        1,
+                                                                            1,
                                                                         color: Colors
                                                                             .grey,
                                                                       ),
                                                                     ),
                                                                     SizedBox(
                                                                         height:
-                                                                        5),
+                                                                            5),
                                                                     Text(
                                                                         userList[1]['details']
-                                                                        [
-                                                                        'likes_count'],
+                                                                            [
+                                                                            'likes_count'],
                                                                         style: TextStyle(
                                                                             fontSize:
-                                                                            10,
+                                                                                10,
                                                                             fontWeight:
-                                                                            FontWeight.bold,
+                                                                                FontWeight.bold,
                                                                             color: Colors.orange)),
                                                                     SizedBox(
                                                                         height:
-                                                                        10),
+                                                                            10),
                                                                   ],
                                                                 ),
                                                               ),
@@ -1303,51 +1309,51 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                                     color: Colors
                                                                         .white,
                                                                     borderRadius:
-                                                                    BorderRadius.circular(
-                                                                        4)),
+                                                                        BorderRadius.circular(
+                                                                            4)),
                                                                 child: Column(
                                                                   children: [
                                                                     SizedBox(
                                                                         height:
-                                                                        10),
+                                                                            10),
                                                                     Text(
                                                                         'Following',
                                                                         style: TextStyle(
                                                                             fontSize:
-                                                                            10,
+                                                                                10,
                                                                             fontWeight:
-                                                                            FontWeight.bold,
+                                                                                FontWeight.bold,
                                                                             color: Colors.grey)),
                                                                     Padding(
                                                                       padding: EdgeInsets.only(
                                                                           left:
-                                                                          8.0,
+                                                                              8.0,
                                                                           right:
-                                                                          8),
+                                                                              8),
                                                                       child:
-                                                                      Divider(
+                                                                          Divider(
                                                                         thickness:
-                                                                        1,
+                                                                            1,
                                                                         color: Colors
                                                                             .grey,
                                                                       ),
                                                                     ),
                                                                     SizedBox(
                                                                         height:
-                                                                        5),
+                                                                            5),
                                                                     Text(
                                                                         userList[1]['details']
-                                                                        [
-                                                                        'following_count'],
+                                                                            [
+                                                                            'following_count'],
                                                                         style: TextStyle(
                                                                             fontSize:
-                                                                            10,
+                                                                                10,
                                                                             fontWeight:
-                                                                            FontWeight.bold,
+                                                                                FontWeight.bold,
                                                                             color: Colors.orange)),
                                                                     SizedBox(
                                                                         height:
-                                                                        10),
+                                                                            10),
                                                                   ],
                                                                 ),
                                                               ),
@@ -1361,51 +1367,51 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                                     color: Colors
                                                                         .white,
                                                                     borderRadius:
-                                                                    BorderRadius.circular(
-                                                                        4)),
+                                                                        BorderRadius.circular(
+                                                                            4)),
                                                                 child: Column(
                                                                   children: [
                                                                     SizedBox(
                                                                         height:
-                                                                        10),
+                                                                            10),
                                                                     Text(
                                                                         'Followers',
                                                                         style: TextStyle(
                                                                             fontSize:
-                                                                            10,
+                                                                                10,
                                                                             fontWeight:
-                                                                            FontWeight.bold,
+                                                                                FontWeight.bold,
                                                                             color: Colors.grey)),
                                                                     Padding(
                                                                       padding: EdgeInsets.only(
                                                                           left:
-                                                                          8.0,
+                                                                              8.0,
                                                                           right:
-                                                                          8),
+                                                                              8),
                                                                       child:
-                                                                      Divider(
+                                                                          Divider(
                                                                         thickness:
-                                                                        1,
+                                                                            1,
                                                                         color: Colors
                                                                             .grey,
                                                                       ),
                                                                     ),
                                                                     SizedBox(
                                                                         height:
-                                                                        5),
+                                                                            5),
                                                                     Text(
                                                                         userList[1]['details']
-                                                                        [
-                                                                        'followers_count'],
+                                                                            [
+                                                                            'followers_count'],
                                                                         style: TextStyle(
                                                                             fontSize:
-                                                                            10,
+                                                                                10,
                                                                             fontWeight:
-                                                                            FontWeight.bold,
+                                                                                FontWeight.bold,
                                                                             color: Colors.orange)),
                                                                     SizedBox(
                                                                         height:
-                                                                        10),
+                                                                            10),
                                                                   ],
                                                                 ),
                                                               ),
@@ -1421,16 +1427,16 @@ class _AfterRegistrationState extends State<AfterRegistration> {
                                                           minWidth: 120,
                                                           shape: RoundedRectangleBorder(
                                                               borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                  6)),
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          6)),
                                                           onPressed: () {},
                                                           child: Text('Follow',
                                                               style: TextStyle(
                                                                   fontSize: 12,
                                                                   fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                                      FontWeight
+                                                                          .bold,
                                                                   color: Colors
                                                                       .white)),
                                                         )

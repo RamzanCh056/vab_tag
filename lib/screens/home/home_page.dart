@@ -10,8 +10,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:vab_tag/screens/extra-screens/create_ad_mobile.dart';
 import 'package:vab_tag/res/static_info.dart';
+import 'package:vab_tag/screens/extra-screens/create_ad_mobile.dart';
 import 'package:vab_tag/screens/home/story_page.dart';
 import 'package:video_player/video_player.dart';
 
@@ -24,7 +24,6 @@ import 'drawer.dart';
 
 var postData = [];
 var getUserInfo;
-var videoUrl;
 
 enum SingingCharacter { lafayette, jefferson }
 
@@ -52,19 +51,20 @@ class _MyHomePageState extends State<MyHomePage>
     'assets/live-streamin.svg',
   ];
 
-  //TargetPlatform? _platform;
-  //late VideoPlayerController _videoPlayerController1;
-  //ChewieController? _chewieController;
   late VideoPlayerController controller;
   TabController? _tabController;
   int? bufferDelay;
-  int curentVideo = 0;
 
   @override
   void initState() {
     getUserData();
     getHomeData();
     loadVideoPlayer();
+    setState(() {});
+    Timer.periodic(
+      const Duration(seconds: 10),
+          (Timer t) => getHomeData(),
+    );
 
     // initializePlayer();
     _tabController = TabController(length: 6, vsync: this);
@@ -76,14 +76,12 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void dispose() {
     super.dispose();
-    // _videoPlayerController1.dispose();
-    // _chewieController?.dispose();
     _tabController?.dispose();
   }
 
   loadVideoPlayer() {
-    controller = VideoPlayerController.network(video[curentVideo]);
-    print("videos url  == ${video[curentVideo].toString()}");
+    controller = VideoPlayerController.network(video);
+    print("videos url  == ${video.toString()}");
     controller.addListener(() {
       setState(() {});
     });
@@ -92,72 +90,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  List<String> video = [
-    "https://www.fluttercampus.com/video.mp4",
-    "https://vibetagspace.nyc3.digitaloceanspaces.com/upload/videos/2022/09/dtJu5PA6Wo2qqhWTzc4a_22_19a093a29336b2eb9e6e439a920ed0f1_video.mp4"
-    //"https://assets.mixkit.co/videos/preview/mixkit-spinning-around-the-earth-29351-large.mp4"
-    // "https://vibetagspace.nyc3.digitaloceanspaces.com/upload/videos/2022/09/rDqzivxXYjhVf2FrtFb4_22_cb07398812d1c93970e2f43468cfde13_video.mp4",
-  ];
-
-  // Future<void> initializePlayer() async {
-  //   _videoPlayerController1 =
-  //       VideoPlayerController.network(video[currPlayIndex]);
-  //
-  //   await Future.wait([
-  //     _videoPlayerController1.initialize(),
-  //
-  //   ]);
-  //   _createChewieController();
-  //   setState(() {});
-  // }
-  //
-  // void _createChewieController() {
-  //
-  //   _chewieController = ChewieController(
-  //     videoPlayerController: _videoPlayerController1,
-  //     autoPlay: true,
-  //     looping: true,
-  //     progressIndicatorDelay:
-  //     bufferDelay != null ? Duration(milliseconds: bufferDelay!) : null,
-  //
-  //     additionalOptions: (context) {
-  //       return <OptionItem>[
-  //         OptionItem(
-  //           onTap: toggleVideo,
-  //           iconData: Icons.live_tv_sharp,
-  //           title: 'Toggle Video Src',
-  //         ),
-  //       ];
-  //     },
-  //
-  //
-  //
-  //     hideControlsTimer: const Duration(seconds: 1),
-  //     showControls: true,
-  //     materialProgressColors: ChewieProgressColors(
-  //       playedColor: Colors.red,
-  //       handleColor: Colors.blue,
-  //       backgroundColor: Colors.yellow,
-  //       bufferedColor: Colors.lightGreen,
-  //     ),
-  //     placeholder: Container(
-  //       color: Colors.grey,
-  //     ),
-  //     autoInitialize: true,
-  //   );
-  // }
-  //
-  // int currPlayIndex = 0;
-  //
-  // Future<void> toggleVideo() async {
-  //   await _videoPlayerController1.pause();
-  //   currPlayIndex += 1;
-  //   if (currPlayIndex >= video.length) {
-  //     currPlayIndex = 0;
-  //   }
-  //   await initializePlayer();
-  // }
-
+  String video = "";
   getHomeData() async {
     var headers = {
       'Cookie':
@@ -228,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage>
       drawer: const Draweer(),
       backgroundColor: Colors.grey.shade300,
       appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(97),
+          preferredSize: const Size.fromHeight(93),
           child: Column(
             children: [
               //
@@ -1102,36 +1035,24 @@ class _MyHomePageState extends State<MyHomePage>
                                                                 child:
                                                                     GestureDetector(
                                                             onTap: () {
-                                                              index =
-                                                                  curentVideo;
-                                                              videoUrl = postData[
-                                                                      curentVideo]
-                                                                  [
+                                                              video = postData[
+                                                                      index][
                                                                   'postFile_full'];
                                                               print(
-                                                                  'Here is video url i think $videoUrl');
+                                                                  'Here is video url i think $video');
                                                             },
-                                                            child: Container(
-                                                                child: Column(
+                                                            child: Stack(
+                                                              children: [
+                                                                Column(
                                                                     children: [
-                                                                  AspectRatio(
-                                                                    aspectRatio:
-                                                                        controller
+                                                                      AspectRatio(
+                                                                        aspectRatio: controller
                                                                             .value
                                                                             .aspectRatio,
-                                                                    child: VideoPlayer(
-                                                                        controller),
-                                                                  ),
-                                                                  Container(
-                                                                    //duration of video
-                                                                    child: Text("Total Duration: " +
-                                                                        controller
-                                                                            .value
-                                                                            .duration
-                                                                            .toString()),
-                                                                  ),
-                                                                  Container(
-                                                                      child: VideoProgressIndicator(
+                                                                        child: VideoPlayer(
+                                                                            controller),
+                                                                      ),
+                                                                      VideoProgressIndicator(
                                                                           controller,
                                                                           allowScrubbing:
                                                                               true,
@@ -1143,37 +1064,47 @@ class _MyHomePageState extends State<MyHomePage>
                                                                                 Colors.green,
                                                                             bufferedColor:
                                                                                 Colors.purple,
-                                                                          ))),
-                                                                  Container(
-                                                                    child: Row(
-                                                                      children: [
-                                                                        IconButton(
-                                                                            onPressed:
-                                                                                () {
-                                                                              if (controller.value.isPlaying) {
-                                                                                controller.pause();
-                                                                              } else {
-                                                                                controller.play();
-                                                                              }
+                                                                          )),
+                                                                      Container(
+                                                                        //duration of video
+                                                                        child: Text("Total Duration: " +
+                                                                            controller.value.duration.toString()),
+                                                                      ),
+                                                                      // IconButton(
+                                                                      //     onPressed:
+                                                                      //         () {
+                                                                      //       controller.seekTo(
+                                                                      //           Duration(
+                                                                      //               seconds: 0));
+                                                                      //
+                                                                      //       setState(() {});
+                                                                      //     },
+                                                                      //     icon:
+                                                                      //     Icon(Icons.stop))
+                                                                    ]),
+                                                                Positioned.fill(
+                                                                  child: Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .center,
+                                                                    child: IconButton(
+                                                                        onPressed: () {
+                                                                          if (controller
+                                                                              .value
+                                                                              .isPlaying) {
+                                                                            controller.pause();
+                                                                          } else {
+                                                                            controller.play();
+                                                                          }
 
-                                                                              setState(() {});
-                                                                            },
-                                                                            icon: Icon(controller.value.isPlaying
-                                                                                ? Icons.pause
-                                                                                : Icons.play_arrow)),
-                                                                        IconButton(
-                                                                            onPressed:
-                                                                                () {
-                                                                              controller.seekTo(Duration(seconds: 0));
-
-                                                                              setState(() {});
-                                                                            },
-                                                                            icon:
-                                                                                Icon(Icons.stop))
-                                                                      ],
-                                                                    ),
-                                                                  )
-                                                                ])),
+                                                                          setState(
+                                                                              () {});
+                                                                        },
+                                                                        icon: Icon(controller.value.isPlaying ? Icons.pause : Icons.play_arrow, color: Colors.white)),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
                                                             // Text("Here place of video we Add soon",style: TextStyle(color: Colors.black, fontSize: 16),
                                                             // )
                                                           )))
@@ -1305,6 +1236,8 @@ class _MyHomePageState extends State<MyHomePage>
                                               // if(postData[index]['all_comments'] .isNotEmpty ){
                                               //
                                               //   Fluttertoast.showToast(msg: '${postData[index]['all_comments'][0]['publisher']}');
+                                              commentIndex = index;
+
                                               var comment = postData[index]
                                                       ['all_comments']
                                                   .isNotEmpty;
