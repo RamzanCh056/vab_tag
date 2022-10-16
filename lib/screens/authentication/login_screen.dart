@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -6,9 +7,12 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vab_tag/res/static_info.dart';
+
 import '../home/home_page.dart';
 import 'forgot_password.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -28,8 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return   SingleChildScrollView(
-
+    return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(18.0),
         child: Form(
@@ -45,9 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Row(
                   children: [
                     Text("Email",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18)),
+                        style: TextStyle(color: Colors.white, fontSize: 18)),
                   ],
                 ),
               ),
@@ -57,31 +58,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   //Do something with the user input.
                 },
                 decoration: InputDecoration(
-                  errorStyle: const TextStyle(
-                      color: Colors.redAccent, fontSize: 15),
+                  errorStyle:
+                      const TextStyle(color: Colors.redAccent, fontSize: 15),
                   filled: true,
                   fillColor: Colors.white,
                   hintText: 'UserName',
                   prefixIcon: Icon(Icons.email),
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 20.0),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(12.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Colors.white, width: 1.0),
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.white, width: 1.0),
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Colors.white, width: 2.0),
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.white, width: 2.0),
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
                   ),
-
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -98,9 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Row(
                   children: [
                     Text("Password",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18)),
+                        style: TextStyle(color: Colors.white, fontSize: 18)),
                   ],
                 ),
               ),
@@ -111,37 +104,32 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 obscureText: obc,
                 decoration: InputDecoration(
-                  errorStyle: const TextStyle(
-                      color: Colors.redAccent, fontSize: 15),
+                  errorStyle:
+                      const TextStyle(color: Colors.redAccent, fontSize: 15),
                   filled: true,
                   fillColor: Colors.white,
                   prefixIcon: GestureDetector(
-                    onTap: (){
-                      setState(() {
-                        obc = !obc;
-                      });
-                    },
-
-                      child: obc? Icon(Icons.visibility):Icon(Icons.visibility_off)
-                  ),
+                      onTap: () {
+                        setState(() {
+                          obc = !obc;
+                        });
+                      },
+                      child: obc
+                          ? Icon(Icons.visibility)
+                          : Icon(Icons.visibility_off)),
                   hintText: 'Password',
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 20.0),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(12.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Colors.white, width: 1.0),
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.white, width: 1.0),
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Colors.white, width: 2.0),
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(12.0)),
+                    borderSide: BorderSide(color: Colors.white, width: 2.0),
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
                   ),
                 ),
                 validator: (value) {
@@ -168,10 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 title: Text('Remember me',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14
-                    )),
+                    style: TextStyle(color: Colors.white, fontSize: 14)),
                 trailing: GestureDetector(
                   onTap: () {
                     Get.to(Forgot_password());
@@ -186,69 +171,65 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 35,
               ),
               isLoading
-                  ? const Center(
-                child: SizedBox(
-                    width: 80,
-                    child: LoadingIndicator(
-                        indicatorType: Indicator.ballBeat,
-                        colors: [Colors.deepPurple],
-                        strokeWidth: 2,
-                        pathBackgroundColor: Colors.blue)),
-              ):
-              Row(
-                mainAxisAlignment:
-                MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 50.0,
-                    child: RaisedButton(
-                      onPressed: () async {
-                        if (formKey.currentState!.validate()) {
-                          loginfun();
-                        }
-                      },
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius.circular(
-                              80.0)),
-                      padding: EdgeInsets.all(0.0),
-                      child: Ink(
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.white,
-                                Colors.white,
-                              ],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius:
-                            BorderRadius.circular(
-                                13.0)),
-                        child: Container(
-                          constraints: BoxConstraints(
-                              maxWidth: 300.0,
-                              minHeight: 50.0),
-                          alignment: Alignment.center,
-                          child: Text(
-                            "Login",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: HexColor("#FF9200"),
+                  ? Center(
+                      child: SizedBox(
+                          width: 90,
+                          child: Image.asset("images/loading.gif")
+                          // LoadingIndicator(
+                          //     indicatorType: Indicator.ballBeat,
+                          //     colors: [Colors.deepPurple],
+                          //     strokeWidth: 2,
+                          //     pathBackgroundColor: Colors.blue)
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 50.0,
+                          child: RaisedButton(
+                            onPressed: () async {
+                              if (formKey.currentState!.validate()) {
+
+                                loginfun();
+                              }
+                            },
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(80.0)),
+                            padding: EdgeInsets.all(0.0),
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.white,
+                                      Colors.white,
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(13.0)),
+                              child: Container(
+                                constraints: BoxConstraints(
+                                    maxWidth: 300.0, minHeight: 50.0),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Login",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: HexColor("#FF9200"),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
               SizedBox(
                 height: 10,
               ),
               Row(
-                mainAxisAlignment:
-                MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
                     "Don't have an account?",
@@ -281,11 +262,14 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-  loginfun() async{
+
+  loginfun() async {
     isLoading = true;
     setState(() {});
+    //SharedPreferences preferences = await SharedPreferences.getInstance();
     var headers = {
-      'Cookie': '_us=1662765015; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-09-08%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; PHPSESSID=f9bb8e6ac6beab30ca26a90c68848b5c; _us=1662751389; access=1; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-09-08%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; mode=day; src=1'
+      'Cookie':
+          '_us=1662765015; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-09-08%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; PHPSESSID=f9bb8e6ac6beab30ca26a90c68848b5c; _us=1662751389; access=1; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-09-08%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; mode=day; src=1'
     };
     var request = http.MultipartRequest('POST', Uri.parse(StaticInfo.baseUrl));
     request.fields.addAll({
@@ -300,11 +284,11 @@ class _LoginScreenState extends State<LoginScreen> {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-    // print(await response.stream.bytesToString());
+      // print(await response.stream.bytesToString());
       var res = await response.stream.bytesToString();
       var body = jsonDecode(res);
       var newError;
-      if (body['errors'] != null){
+      if (body['errors'] != null) {
         errorText = body['errors'];
         newError = errorText['error_text'];
         Fluttertoast.showToast(msg: "$newError");
@@ -312,8 +296,8 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           isLoading = false;
         });
-      }
-      else{
+      } else {
+
         Get.to(MyHomePage());
         var newMessage;
         message = body['messages'];
@@ -326,18 +310,19 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           isLoading = false;
         });
-      };
+        // await preferences.setBool('isLoggedIn', true);
+        // await preferences.setString('email', emailController.text);
+        // await preferences.setString('password', passwordController.text);
+        // await preferences.setString('LoginId', StaticInfo.userIdLogin.toString());
+      }
+      ;
+    } else {
+      print(response.reasonPhrase);
+      Fluttertoast.showToast(msg: "Something went wrong try again letter");
+      print("api not working");
+      setState(() {
+        isLoading = false;
+      });
     }
-    else {
-    print(response.reasonPhrase);
-    Fluttertoast.showToast(msg: "Something went wrong try again letter");
-    print("api not working");
-    setState(() {
-      isLoading = false;
-    });
-    }
-
-
   }
-
 }

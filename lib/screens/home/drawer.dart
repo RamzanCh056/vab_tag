@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vab_tag/screens/authentication/login.dart';
 import 'package:vab_tag/screens/new/thridpage.dart';
 import '../extra-screens/blogs_one.dart';
 import '../extra-screens/create_ad_mobile.dart';
@@ -34,6 +37,16 @@ class Draweer extends StatefulWidget {
 }
 
 class _DraweerState extends State<Draweer> {
+  SharedPreferences? preferences;
+
+  @override
+  void initState() {
+    SharedPreferences.getInstance().then((value) {
+      preferences = value;
+      setState(() {});
+    });
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -789,6 +802,62 @@ class _DraweerState extends State<Draweer> {
                     ),
                     title: Text(
                       'See more',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const Divider(
+                    thickness: 2,
+                  ),
+
+                  ListTile(
+                    onTap: ()async{
+                      showDialog(
+                          context: context,
+                          builder: (_) {
+                            return AlertDialog(
+                              title: Text("Log Out"),
+                              content: Text("Are you sure to Logout?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: ()async {
+                                    await preferences?.setBool('isLoggedIn', false);
+                                    Fluttertoast.showToast(msg: "Successfully logout");
+                                    Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => LoginSignup()),
+                                    (route) => false);
+                                  },
+                                  child: Text("Log Out"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+
+                                  },
+                                  child: Text("Cancel"),
+                                ),
+                              ],
+                            );
+                          });
+
+                    },
+                    dense: true,
+                    minLeadingWidth: 18,
+                    horizontalTitleGap: 8,
+                    visualDensity: VisualDensity(horizontal: 0, vertical: -4),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    leading: Container(
+                      height: 30,
+                      width: 30,
+                      child:  SvgPicture.asset('images/logout.svg',
+                          fit: BoxFit.cover, color: HexColor("#FF9200")
+                      ),
+                    ),
+                    title: Text(
+                      'Logout',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

@@ -11,15 +11,15 @@ import '../screens/home/home_page.dart';
 
 
 class CommentsController extends GetxController {
-  deleteComment() async {
-    print("comment Id controller ${StaticInfo.commentId}");
+  deleteComment(var comment) async {
+    //print("comment Id controller ${StaticInfo.commentId}");
     var headers = {
       'Cookie': 'PHPSESSID=92c654950a8507f5cba3bb14ee5f40b7; _us=1664901756; access=1; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-10-03%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; mode=day; src=1'
     };
     var request = http.MultipartRequest('POST', Uri.parse( StaticInfo.baseUrl));
     request.fields.addAll({
       'type': 'comment_delete',
-      'comment_id':  StaticInfo.commentId,
+      'comment_id':  comment,
       'user_id':  StaticInfo.userIdLogin,
     });
 

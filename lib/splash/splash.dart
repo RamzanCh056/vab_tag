@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vab_tag/screens/authentication/login.dart';
+
+import '../screens/home/home_page.dart';
 
 
 class SplashScreen extends StatefulWidget {
@@ -21,14 +24,38 @@ class SplashScreenState extends State<SplashScreen>
     return new Timer(_duration, navigationPage);
   }
 
+
+  //late SharedPreferences preferences;
   void navigationPage() {
+    // SharedPreferences.getInstance().then((value) async {
+    //   preferences = value;
+    //   if (preferences.getBool('isLoggedIn') ?? false) {
+    //     Future.delayed(const Duration(seconds: 2), () {
+    //       Navigator.pushAndRemoveUntil(
+    //           context,
+    //           MaterialPageRoute(builder: (_) => MyHomePage ()),
+    //               (route) => false);
+    //     });
+    //   } else {
+    //     Future.delayed(const Duration(seconds: 2), () {
+    //       Navigator.pushAndRemoveUntil(
+    //           context,
+    //           MaterialPageRoute(builder: (_) => LoginSignup()),
+    //               (route) => false);
+    //     });
+    //   }
+    // }).catchError((e) {
+    //   Future.delayed(const Duration(seconds: 2), () {
+    //     Navigator.pushAndRemoveUntil(context,
+    //         MaterialPageRoute(builder: (_) => LoginSignup()), (route) => false);
+    //   });
+    // });
     Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => LoginSignup(),
         ));
   }
-
   @override
   void initState() {
     super.initState();

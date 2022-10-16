@@ -4,7 +4,7 @@ class StaticInfo{
   static var userId;
   static var userIdLogin;
   static var PostId;
-   static var commentId;
+  static var commentId;
 }
 Widget titleForDialog(BuildContext context, String title) {
   return Container(

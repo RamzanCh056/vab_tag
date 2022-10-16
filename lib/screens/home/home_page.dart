@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:better_player/better_player.dart';
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vab_tag/res/static_info.dart';
 import 'package:vab_tag/screens/extra-screens/create_ad_mobile.dart';
 import 'package:vab_tag/screens/home/story_page.dart';
@@ -57,13 +59,18 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void initState() {
-    getUserData();
-    getHomeData();
+    //print("init called");
+    // SharedPreferences.getInstance().then((value) {
+    //   preferences = value;
+    //   setState(() {});
+    // });
+     getUserData();
+     getHomeData();
     loadVideoPlayer();
     setState(() {});
-    Timer.periodic(
-      const Duration(seconds: 10),
-          (Timer t) => getHomeData(),
+    _timer = Timer.periodic(
+      const Duration(seconds: 2),
+          (Timer t) =>  updateState(),
     );
 
     // initializePlayer();
@@ -72,9 +79,18 @@ class _MyHomePageState extends State<MyHomePage>
 
     super.initState();
   }
+  updateState() {
+    print("calling get home from controller");
+    setState(() {
+      getHomeData();
+      getUserData();
+    });
+  }
 
+  Timer? _timer;
   @override
   void dispose() {
+    _timer!.cancel();
     super.dispose();
     _tabController?.dispose();
   }
@@ -92,6 +108,10 @@ class _MyHomePageState extends State<MyHomePage>
 
   String video = "";
   getHomeData() async {
+
+    // print('lOGIN ID IN PREFF ${preferences!.getString('LoginId')}');
+    // StaticInfo.userIdLogin = preferences!.getString('LoginId').toString();
+    // print('lOGIN ID IN Static PREFF ${StaticInfo.userIdLogin}');
     var headers = {
       'Cookie':
           'PHPSESSID=149a56db22f52ca849a4c8463cf8ddc5; _us=1663499099; access=1; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-09-17%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; mode=day; src=1'
@@ -119,6 +139,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   getUserData() async {
+   // print('lOGIN ID IN getuserdata PREFF ${preferences!.getString('LoginId')}');
+    //StaticInfo.userIdLogin = preferences!.getString('LoginId').toString();
     var headers = {
       'Cookie':
           'PHPSESSID=149a56db22f52ca849a4c8463cf8ddc5; _us=1663512156; access=1; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-09-17%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%7B%26quot%3B44%26quot%3B%3A%26quot%3B44%26quot%3B%2C%26quot%3B42%26quot%3B%3A%26quot%3B42%26quot%3B%2C%26quot%3B45%26quot%3B%3A%26quot%3B45%26quot%3B%7D%7D; mode=day; src=1'
@@ -126,6 +148,7 @@ class _MyHomePageState extends State<MyHomePage>
     var request = http.MultipartRequest(
         'POST', Uri.parse('https://vibetag.com/app_api.php'));
     request.fields.addAll({
+
       'type': 'get_user_data',
       'user_profile_id': StaticInfo.userIdLogin,
       'user_id': StaticInfo.userIdLogin,
@@ -151,6 +174,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   DateTime? TimeDate;
+  SharedPreferences? preferences;
 
   @override
   Widget build(BuildContext context) {
@@ -234,183 +258,166 @@ class _MyHomePageState extends State<MyHomePage>
                               height: height * 0.12,
                               width: width * 1.0,
                               color: Colors.white,
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: width * 0.04,
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      _showMyDialog3();
-                                    },
-                                    child: Container(
-                                      height: 50,
-                                      width: 50,
-                                      decoration: BoxDecoration(
-                                        color: Colors.amberAccent,
-                                        shape: BoxShape.circle,
-                                        image: DecorationImage(
-                                          image: NetworkImage(
-                                            getUserInfo["avatar"],
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            _showMyDialog3();
+                                          },
+                                          child: Container(
+                                            height: 50,
+                                            width: 50,
+                                            decoration: BoxDecoration(
+                                              color: Colors.amberAccent,
+                                              shape: BoxShape.circle,
+                                              image: DecorationImage(
+                                                image: NetworkImage(
+                                                  getUserInfo["avatar"],
+                                                ),
+                                                //   fit: BoxFit.fill
+                                              ),
+                                            ),
                                           ),
-                                          //   fit: BoxFit.fill
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: width * 0.02,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        height: height * 0.03,
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          print("tb");
-                                          getHomeData();
-                                        },
-                                        child: Text(
-                                          getUserInfo["username"],
+                                    SizedBox(
+                                      width: width * 0.02,
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                       Row(children: [
+                                         Text(
+                                           getUserInfo["first_name"],
+                                           style: TextStyle(
+                                             color: Colors.black,
+                                             fontSize: 12.0,
+                                             fontWeight: FontWeight.bold,
+                                           ),
+                                         ),
+                                         SizedBox(width: 3,),
+                                         Text(
+                                           getUserInfo["last_name"],
+                                           style: TextStyle(
+                                             color: Colors.black,
+                                             fontSize: 12.0,
+                                             fontWeight: FontWeight.bold,
+                                           ),
+                                         ),
+                                       ],),
+                                        SizedBox(height: 4,),
+                                        Text(
+                                          "@ ${ getUserInfo["username"]}",
                                           style: TextStyle(
                                             color: Colors.black,
-                                            fontSize: 12.0,
+                                            fontSize: 9.0,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ),
-                                      Text(
-                                        getUserInfo["email"],
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 11.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        getUserInfo["country_id"],
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 10.0,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    width: 15,
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            height: height * 0.02,
-                                          ),
-                                          Text(
-                                            "Posts",
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 11.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            maxLines: 1,
-                                          ),
-                                          SizedBox(
-                                            height: height * 0.02,
-                                          ),
-                                          Text(
-                                            getUserInfo['details']
-                                                ["post_count"],
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 12.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        // Text(
+                                        //   getUserInfo["country_id"],
+                                        //   style: TextStyle(
+                                        //     color: Colors.grey,
+                                        //     fontSize: 10.0,
+                                        //   ),
+                                        // ),
+                                      ],
                                     ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        height: height * 0.02,
-                                      ),
-                                      Text(
-                                        "Following",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 11.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: height * 0.02,
-                                      ),
-                                      Text(
-                                        getUserInfo['details']
-                                            ["following_count"],
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 12.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    width: width * 0.03,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        height: height * 0.02,
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 3),
-                                        child: Text(
-                                          "Followers",
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 11.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: height * 0.02,
-                                      ),
-                                      Text(
-                                        getUserInfo['details']
-                                            ["followers_count"],
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 12.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                    SizedBox(
+                                      width: 30,
+                                    ),
+
+                                 Padding(
+                                   padding: const EdgeInsets.symmetric(vertical: 20),
+                                   child: Row(
+
+                                     children: [  Column(
+                                     children: [
+                                       Text(
+                                         "Posts",
+                                         style: TextStyle(
+                                           color: Colors.black,
+                                           fontSize: 12.0,
+                                           fontWeight: FontWeight.bold,
+                                         ),
+                                         maxLines: 1,
+                                       ),
+                                       SizedBox(height: 10,),
+                                       Text(
+                                         getUserInfo['details']
+                                         ["post_count"],
+                                         style: TextStyle(
+                                           color: Colors.black,
+                                           fontSize: 12.0,
+                                           fontWeight: FontWeight.bold,
+                                         ),
+                                       ),
+                                     ],
+                                   ),
+                                     SizedBox(width: 25,),
+                                     Column(
+                                       children: [
+
+                                         Text(
+                                           "Following",
+                                           style: TextStyle(
+                                             color: Colors.black,
+                                             fontSize: 12.0,
+                                             fontWeight: FontWeight.bold,
+                                           ),
+                                         ),
+                                         SizedBox(height: 10,),
+                                         Text(
+                                           getUserInfo['details']
+                                           ["following_count"],
+                                           style: TextStyle(
+                                             color: Colors.black,
+                                             fontSize: 12.0,
+                                             fontWeight: FontWeight.bold,
+                                           ),
+                                         ),
+                                       ],
+                                     ),
+                                     SizedBox(width: 25,),
+
+                                     Column(
+
+                                       children: [
+
+                                         Text(
+                                           "Followers",
+                                           style: TextStyle(
+                                             color: Colors.black,
+                                             fontSize: 12.0,
+                                             fontWeight: FontWeight.bold,
+                                           ),
+                                         ),
+                                         SizedBox(height: 10,),
+                                         Text(
+                                           getUserInfo['details']
+                                           ["followers_count"],
+                                           style: TextStyle(
+                                             color: Colors.black,
+                                             fontSize: 12.0,
+                                             fontWeight: FontWeight.bold,
+                                           ),
+                                         ),
+                                       ],
+                                     )],),
+                                 )
+                                  ],
+                                ),
                               ),
                             );
                           });
                     } else {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return Center(child: CircularProgressIndicator());
                     }
                   }),
               Padding(
@@ -546,254 +553,247 @@ class _MyHomePageState extends State<MyHomePage>
                             );
                           });
                     } else {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return Center(child: CircularProgressIndicator());
                     }
                   }),
               SizedBox(
                 height: height * 0.03,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: height * 0.25,
-                    width: width * 0.9,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.white),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0),
-                        bottomLeft: Radius.circular(30.0),
-                        bottomRight: Radius.circular(30.0),
-                      ),
+              Container(
+                height: height * 0.25,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30.0),
+                    topRight: Radius.circular(30.0),
+                    bottomLeft: Radius.circular(30.0),
+                    bottomRight: Radius.circular(30.0),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: height * 0.02,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
                       children: [
                         SizedBox(
-                          height: height * 0.02,
+                          width: width * 0.02,
                         ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: width * 0.02,
-                            ),
-                            Image(
-                              image: AssetImage("images/image4.png"),
-                              fit: BoxFit.fill,
-                            ),
-                            SizedBox(
-                              width: width * 0.02,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return CustomDialogBox();
-                                    });
-                              },
-                              child: Text(
-                                "Whats's going on? #Hashtag.. Link..",
-                                style: TextStyle(
-                                  color: Colors.grey.shade400,
-                                  fontSize: 9.0,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: width * 0.03,
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  _showMyDialog1();
-                                },
-                                child:
-                                    // SvgPicture.asset(
-                                    //   picTabs[6],
-                                    //   height: 25,
-                                    //   width: 25,
-                                    //   color: Colors.grey.shade500,
-                                    // ),
-                                    SvgPicture.asset(
-                                  picTabs[7],
-                                  height: 30,
-                                  color: Colors.grey.shade500,
-                                  width: 30,
-                                ),
-                              ),
-                            ),
-                            // SizedBox(
-                            //   width: width * 0.02,
-                            // ),
-                            Expanded(
-                              child: Icon(
-                                Icons.image,
-                                size: 33.0,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            // SizedBox(
-                            //   width: width * 0.02,
-                            // ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Get.to(CreateAdMobile());
-                                },
-                                child: Icon(
-                                  Icons.emoji_emotions,
-                                  size: 33.0,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: width * 0.12,
-                            ),
-                            SizedBox(
-                              width: width * 0.77,
-                              height: height * 0.01,
-                              child: Divider(
-                                color: Colors.grey,
-                                thickness: 1.0,
-                              ),
-                            ),
-                          ],
+                        Image(
+                          image: AssetImage("images/image4.png"),
+                          fit: BoxFit.fill,
                         ),
                         SizedBox(
-                          height: height * 0.02,
+                          width: width * 0.02,
                         ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: width * 0.1,
+                        GestureDetector(
+                          onTap: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CustomDialogBox();
+                                });
+                          },
+                          child: Text(
+                            "Whats's going on? #Hashtag.. Link..",
+                            style: TextStyle(
+                              color: Colors.grey.shade400,
+                              fontSize: 9.0,
                             ),
-                            SvgPicture.asset(
-                              'assets/theater-masks.svg',
-                              height: 25,
-                              color: Color(0xffff9200),
-                              width: 25,
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            Text(
-                              "Entertainment",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(
-                              width: width * 0.2,
-                            ),
-                            Expanded(
-                              child: Icon(
-                                Icons.keyboard_arrow_down,
-                                size: 30.0,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                         SizedBox(
-                          height: height * 0.02,
+                          width: width * 0.03,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Container(
-                              height: height * 0.06,
-                              width: width * 0.4,
-                              decoration: BoxDecoration(
-                                color: const Color(0xfff1f1f1),
-                                border: Border.all(color: Colors.white),
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(30.0),
-                                  topRight: Radius.circular(30.0),
-                                  bottomLeft: Radius.circular(30.0),
-                                  bottomRight: Radius.circular(30.0),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Text(
-                                    "Your Feed",
-                                    style: TextStyle(
-                                      color: Color(0xffafafaf),
-                                      fontSize: 10.0,
-                                    ),
-                                  ),
-                                  Image(
-                                    image: AssetImage("images/onoff.png"),
-                                    fit: BoxFit.fill,
-                                  ),
-                                  Text(
-                                    "All",
-                                    style: TextStyle(
-                                      color: Color(0xffff9200),
-                                      fontSize: 10.0,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              _showMyDialog1();
+                            },
+                            child:
+                                // SvgPicture.asset(
+                                //   picTabs[6],
+                                //   height: 25,
+                                //   width: 25,
+                                //   color: Colors.grey.shade500,
+                                // ),
+                                SvgPicture.asset(
+                              picTabs[7],
+                              height: 33,
+                              color: Colors.grey.shade500,
+                              width: 30,
                             ),
-                            Container(
-                              height: height * 0.06,
-                              width: width * 0.4,
-                              decoration: BoxDecoration(
-                                color: Color(0xfff1f1f1),
-                                border: Border.all(color: Colors.white),
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(30.0),
-                                  topRight: Radius.circular(30.0),
-                                  bottomLeft: Radius.circular(30.0),
-                                  bottomRight: Radius.circular(30.0),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Text(
-                                    "Day",
-                                    style: TextStyle(
-                                      color: Color(0xffafafaf),
-                                      fontSize: 10.0,
-                                    ),
-                                  ),
-                                  Image(
-                                    image: AssetImage("images/onoff.png"),
-                                    fit: BoxFit.fill,
-                                  ),
-                                  Text(
-                                    "Night",
-                                    style: TextStyle(
-                                      color: Color(0xffff9200),
-                                      fontSize: 10.0,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          ),
+                        ),
+                        // SizedBox(
+                        //   width: width * 0.02,
+                        // ),
+                        Expanded(
+                          child: Icon(
+                            Icons.image,
+                            size: 33.0,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        // SizedBox(
+                        //   width: width * 0.02,
+                        // ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Get.to(CreateAdMobile());
+                            },
+                            child: Icon(
+                              Icons.emoji_emotions,
+                              size: 33.0,
+                              color: Colors.grey,
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: width * 0.12,
+                        ),
+                        SizedBox(
+                          width: width * 0.77,
+                          height: height * 0.01,
+                          child: Divider(
+                            color: Colors.grey,
+                            thickness: 1.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: height * 0.02,
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: width * 0.1,
+                        ),
+                        SvgPicture.asset(
+                          'assets/theater-masks.svg',
+                          height: 25,
+                          color: Color(0xffff9200),
+                          width: 25,
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Text(
+                          "Entertainment",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width * 0.2,
+                        ),
+                        Expanded(
+                          child: Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 30.0,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: height * 0.02,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Container(
+                          height: height * 0.06,
+                          width: width * 0.4,
+                          decoration: BoxDecoration(
+                            color: const Color(0xfff1f1f1),
+                            border: Border.all(color: Colors.white),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(30.0),
+                              topRight: Radius.circular(30.0),
+                              bottomLeft: Radius.circular(30.0),
+                              bottomRight: Radius.circular(30.0),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceAround,
+                            children: [
+                              Text(
+                                "Your Feed",
+                                style: TextStyle(
+                                  color: Color(0xffafafaf),
+                                  fontSize: 10.0,
+                                ),
+                              ),
+                              Image(
+                                image: AssetImage("images/onoff.png"),
+                                fit: BoxFit.fill,
+                              ),
+                              Text(
+                                "All",
+                                style: TextStyle(
+                                  color: Color(0xffff9200),
+                                  fontSize: 10.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: height * 0.06,
+                          width: width * 0.4,
+                          decoration: BoxDecoration(
+                            color: Color(0xfff1f1f1),
+                            border: Border.all(color: Colors.white),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30.0),
+                              topRight: Radius.circular(30.0),
+                              bottomLeft: Radius.circular(30.0),
+                              bottomRight: Radius.circular(30.0),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceAround,
+                            children: [
+                              Text(
+                                "Day",
+                                style: TextStyle(
+                                  color: Color(0xffafafaf),
+                                  fontSize: 10.0,
+                                ),
+                              ),
+                              Image(
+                                image: AssetImage("images/onoff.png"),
+                                fit: BoxFit.fill,
+                              ),
+                              Text(
+                                "Night",
+                                style: TextStyle(
+                                  color: Color(0xffff9200),
+                                  fontSize: 10.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               SizedBox(
                 height: height * 0.03,
@@ -921,8 +921,8 @@ class _MyHomePageState extends State<MyHomePage>
                                             width: width * 0.05,
                                           ),
                                           Container(
-                                            height: 60,
-                                            width: 60,
+                                            height: 65,
+                                            width: 65,
                                             decoration: BoxDecoration(
                                               color: Colors.red,
                                               shape: BoxShape.circle,
@@ -936,7 +936,7 @@ class _MyHomePageState extends State<MyHomePage>
                                             ),
                                           ),
                                           SizedBox(
-                                            width: width * 0.05,
+                                            width: width * 0.03,
                                           ),
                                           Column(
                                             crossAxisAlignment:
@@ -950,7 +950,7 @@ class _MyHomePageState extends State<MyHomePage>
                                                     ['username'],
                                                 style: TextStyle(
                                                   color: Color(0xff3b3b3b),
-                                                  fontSize: 15.0,
+                                                  fontSize: 14.0,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
@@ -960,10 +960,6 @@ class _MyHomePageState extends State<MyHomePage>
                                               Row(
                                                 children: [
                                                   Text(
-                                                    // postData[
-                                                    // index]
-                                                    // [
-                                                    // 'time'],
                                                     DateFormat('hh:mm a')
                                                         .format(DateTime
                                                             .fromMillisecondsSinceEpoch(
@@ -977,17 +973,14 @@ class _MyHomePageState extends State<MyHomePage>
                                                     style: TextStyle(
                                                       color:
                                                           Colors.grey.shade400,
-                                                      fontSize: 15.0,
+                                                      fontSize: 12.0,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
                                                   ),
                                                   Icon(
-                                                    Icons.map_outlined,
-                                                    color: Colors.grey.shade400,
-                                                  ),
-                                                  Icon(
-                                                    Icons.keyboard_arrow_down,
+                                                    Icons.circle,
+                                                    size: 12,
                                                     color: Colors.grey.shade400,
                                                   ),
                                                 ],
@@ -999,8 +992,7 @@ class _MyHomePageState extends State<MyHomePage>
                                                 "Change his profile picture",
                                                 style: TextStyle(
                                                   color: Color(0xff3b3b3b),
-                                                  fontSize: 15.0,
-                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 11.0,
                                                 ),
                                               ),
                                             ],
@@ -1041,70 +1033,80 @@ class _MyHomePageState extends State<MyHomePage>
                                                               print(
                                                                   'Here is video url i think $video');
                                                             },
-                                                            child: Stack(
-                                                              children: [
-                                                                Column(
-                                                                    children: [
-                                                                      AspectRatio(
-                                                                        aspectRatio: controller
-                                                                            .value
-                                                                            .aspectRatio,
-                                                                        child: VideoPlayer(
-                                                                            controller),
-                                                                      ),
-                                                                      VideoProgressIndicator(
-                                                                          controller,
-                                                                          allowScrubbing:
-                                                                              true,
-                                                                          colors:
-                                                                              VideoProgressColors(
-                                                                            backgroundColor:
-                                                                                Colors.redAccent,
-                                                                            playedColor:
-                                                                                Colors.green,
-                                                                            bufferedColor:
-                                                                                Colors.purple,
-                                                                          )),
-                                                                      Container(
-                                                                        //duration of video
-                                                                        child: Text("Total Duration: " +
-                                                                            controller.value.duration.toString()),
-                                                                      ),
-                                                                      // IconButton(
-                                                                      //     onPressed:
-                                                                      //         () {
-                                                                      //       controller.seekTo(
-                                                                      //           Duration(
-                                                                      //               seconds: 0));
-                                                                      //
-                                                                      //       setState(() {});
-                                                                      //     },
-                                                                      //     icon:
-                                                                      //     Icon(Icons.stop))
-                                                                    ]),
-                                                                Positioned.fill(
-                                                                  child: Align(
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .center,
-                                                                    child: IconButton(
-                                                                        onPressed: () {
-                                                                          if (controller
-                                                                              .value
-                                                                              .isPlaying) {
-                                                                            controller.pause();
-                                                                          } else {
-                                                                            controller.play();
-                                                                          }
-
-                                                                          setState(
-                                                                              () {});
-                                                                        },
-                                                                        icon: Icon(controller.value.isPlaying ? Icons.pause : Icons.play_arrow, color: Colors.white)),
-                                                                  ),
+                                                            child: AspectRatio(
+                                                              aspectRatio: 16/9,
+                                                              child: BetterPlayer.network(
+                                                                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                                                                betterPlayerConfiguration: BetterPlayerConfiguration(
+                                                                  aspectRatio: 16/9,
                                                                 ),
-                                                              ],
-                                                            ),
+
+                                                              )
+                                                            )
+                                                            // Stack(
+                                                            //   children: [
+                                                            //     Column(
+                                                            //         children: [
+                                                            //           AspectRatio(
+                                                            //             aspectRatio: controller
+                                                            //                 .value
+                                                            //                 .aspectRatio,
+                                                            //             child: VideoPlayer(
+                                                            //                 controller),
+                                                            //           ),
+                                                            //           VideoProgressIndicator(
+                                                            //               controller,
+                                                            //               allowScrubbing:
+                                                            //                   true,
+                                                            //               colors:
+                                                            //                   VideoProgressColors(
+                                                            //                 backgroundColor:
+                                                            //                     Colors.redAccent,
+                                                            //                 playedColor:
+                                                            //                     Colors.green,
+                                                            //                 bufferedColor:
+                                                            //                     Colors.purple,
+                                                            //               )),
+                                                            //           Container(
+                                                            //             //duration of video
+                                                            //             child: Text("Total Duration: " +
+                                                            //                 controller.value.duration.toString()),
+                                                            //           ),
+                                                            //           // IconButton(
+                                                            //           //     onPressed:
+                                                            //           //         () {
+                                                            //           //       controller.seekTo(
+                                                            //           //           Duration(
+                                                            //           //               seconds: 0));
+                                                            //           //
+                                                            //           //       setState(() {});
+                                                            //           //     },
+                                                            //           //     icon:
+                                                            //           //     Icon(Icons.stop))
+                                                            //         ]),
+                                                            //     Positioned.fill(
+                                                            //       child: Align(
+                                                            //         alignment:
+                                                            //             Alignment
+                                                            //                 .center,
+                                                            //         child: IconButton(
+                                                            //             onPressed: () {
+                                                            //               if (controller
+                                                            //                   .value
+                                                            //                   .isPlaying) {
+                                                            //                 controller.pause();
+                                                            //               } else {
+                                                            //                 controller.play();
+                                                            //               }
+                                                            //
+                                                            //               setState(
+                                                            //                   () {});
+                                                            //             },
+                                                            //             icon: Icon(controller.value.isPlaying ? Icons.pause : Icons.play_arrow, color: Colors.white)),
+                                                            //       ),
+                                                            //     ),
+                                                            //   ],
+                                                            // ),
                                                             // Text("Here place of video we Add soon",style: TextStyle(color: Colors.black, fontSize: 16),
                                                             // )
                                                           )))
@@ -1122,6 +1124,9 @@ class _MyHomePageState extends State<MyHomePage>
                                                             ),
                                                           )
                                                     : Container()
+
+
+
 
                                                 // GestureDetector(
                                                 //   onTap: (){

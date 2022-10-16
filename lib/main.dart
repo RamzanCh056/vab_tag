@@ -19,6 +19,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
+
+
       title: 'Flutter Demo',
       theme: ThemeData(
           primaryColor: Colors.yellow[900],
@@ -27,3 +29,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
