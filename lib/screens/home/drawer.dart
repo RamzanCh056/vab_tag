@@ -1523,7 +1523,7 @@ class _DraweerState extends State<Draweer> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          CustomDialogBox();
+                          //CustomDialogBox();
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(

@@ -1,23 +1,29 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:better_player/better_player.dart';
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_place_picker_mb/google_maps_place_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vab_tag/res/static_info.dart';
 import 'package:vab_tag/screens/extra-screens/create_ad_mobile.dart';
 import 'package:vab_tag/screens/home/story_page.dart';
+import 'package:vab_tag/screens/home/video_player.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../common/appbar.dart';
+import '../../common/colors.dart';
 import '../../common/top_appbar.dart';
 import '../Campaigns/campaigns.dart';
 import '../trending_event/trending_event.dart';
@@ -26,6 +32,8 @@ import 'drawer.dart';
 
 var postData = [];
 var getUserInfo;
+var showLocation;
+String? addres;
 
 enum SingingCharacter { lafayette, jefferson }
 
@@ -59,18 +67,18 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void initState() {
+    // loadVideoPlayer();
     //print("init called");
     // SharedPreferences.getInstance().then((value) {
     //   preferences = value;
     //   setState(() {});
     // });
-     getUserData();
-     getHomeData();
-    loadVideoPlayer();
+    getUserData();
+    getHomeData();
     setState(() {});
     _timer = Timer.periodic(
       const Duration(seconds: 2),
-          (Timer t) =>  updateState(),
+      (Timer t) => updateState(),
     );
 
     // initializePlayer();
@@ -79,6 +87,17 @@ class _MyHomePageState extends State<MyHomePage>
 
     super.initState();
   }
+
+  // loadVideoPlayer(){
+  //   controller = VideoPlayerController.asset(videoFile.toString());
+  //   controller.addListener(() {
+  //     setState(() {});
+  //   });
+  //   controller.initialize().then((value){
+  //     setState(() {});
+  //   });
+  //
+  // }
   updateState() {
     print("calling get home from controller");
     setState(() {
@@ -88,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Timer? _timer;
+
   @override
   void dispose() {
     _timer!.cancel();
@@ -95,20 +115,7 @@ class _MyHomePageState extends State<MyHomePage>
     _tabController?.dispose();
   }
 
-  loadVideoPlayer() {
-    controller = VideoPlayerController.network(video);
-    print("videos url  == ${video.toString()}");
-    controller.addListener(() {
-      setState(() {});
-    });
-    controller.initialize().then((value) {
-      setState(() {});
-    });
-  }
-
-  String video = "";
   getHomeData() async {
-
     // print('lOGIN ID IN PREFF ${preferences!.getString('LoginId')}');
     // StaticInfo.userIdLogin = preferences!.getString('LoginId').toString();
     // print('lOGIN ID IN Static PREFF ${StaticInfo.userIdLogin}');
@@ -139,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   getUserData() async {
-   // print('lOGIN ID IN getuserdata PREFF ${preferences!.getString('LoginId')}');
+    // print('lOGIN ID IN getuserdata PREFF ${preferences!.getString('LoginId')}');
     //StaticInfo.userIdLogin = preferences!.getString('LoginId').toString();
     var headers = {
       'Cookie':
@@ -148,7 +155,6 @@ class _MyHomePageState extends State<MyHomePage>
     var request = http.MultipartRequest(
         'POST', Uri.parse('https://vibetag.com/app_api.php'));
     request.fields.addAll({
-
       'type': 'get_user_data',
       'user_profile_id': StaticInfo.userIdLogin,
       'user_id': StaticInfo.userIdLogin,
@@ -173,8 +179,152 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
+  bool isLoad = false;
+
+  createPost() async {
+    isLoad = true;
+    setState(() {});
+    var headers = {
+      'Cookie':
+          'PHPSESSID=bf6d262387f5eee36e33b5d186e6d9ba; _us=1666456813; access=1; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-10-21%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; mode=day; src=1'
+    };
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('https://vibetag.com/app_api.php'));
+    request.fields.addAll({
+      'type': 'new_post',
+      'user_id': StaticInfo.userIdLogin,
+      'postText': postController.text,
+      'page_id': '',
+      'event_id': '',
+      'group_id': '',
+      'postPrivacy': '',
+      'postMap': location.text,
+      'album_name': '',
+      'feeling_type': '',
+      'feeling': '',
+      'postSticker': '',
+      'post_color': '',
+      'postRecord': '',
+      'answer[]': ''
+    });
+    if (imageFile != null) {
+      request.files
+          .add(await http.MultipartFile.fromPath('postFile', imageFile!.path));
+      print("image file woth path is ${imageFile!.path}");
+    }
+    if (_video != null) {
+      request.files
+          .add(await http.MultipartFile.fromPath('postVideo', _video!.path));
+      print("video path is ${_video!.path}");
+    }
+    //request.files.add(await http.MultipartFile.fromPath('postFile', '/path/to/file'));
+    //request.files.add(await http.MultipartFile.fromPath('postVideo', '/path/to/file'));
+    // request.files.add(await http.MultipartFile.fromPath('postMusic', '/path/to/file'));
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      //print(await response.stream.bytesToString());
+      var res = await response.stream.bytesToString();
+      var body = jsonDecode(res);
+      var msg = body['api_text'];
+      Fluttertoast.showToast(msg: "$msg");
+
+      setState(() {
+        isLoad = false;
+      });
+    } else {
+      print(response.reasonPhrase);
+
+      setState(() {
+        isLoad = false;
+      });
+    }
+  }
+
+  showPlacePicker() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return PlacePicker(
+            apiKey: 'AIzaSyChT7iBjqvTKOK4VdtaOa9nZiSqNk38z_I',
+            hintText: "Select Location",
+            searchingText: "Please wait ...",
+            selectText: "Select place",
+            outsideOfPickAreaText: "Place is not in area",
+            initialPosition: addressLatLng,
+            selectInitialPosition: true,
+            onPlacePicked: (result) {
+              location.text= result.formattedAddress!;
+              addressLatLng = LatLng(
+                  result.geometry!.location.lat, result.geometry!.location.lng);
+              Navigator.of(context).pop();
+              setState(() {});
+            },
+          );
+        },
+      ),
+    );
+    setState(() {});
+  }
+
+  getImageGallery() async {
+    PickedFile? pickedFile = await ImagePicker().getImage(
+      source: ImageSource.gallery,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  // getVideoGallery()async{
+  //   XFile? pickedFile = await ImagePicker().pickVideo(
+  //     source: ImageSource.gallery,
+  //   );
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       videoFile = File(pickedFile.path);
+  //     });
+  //   }
+  // }
+  File? imageFile;
+
+  // File? videoFile;
   DateTime? TimeDate;
   SharedPreferences? preferences;
+  final postController = TextEditingController();
+  final Set<Marker> markers = Set();
+
+  final location = TextEditingController();
+  // var youLoc;
+
+  bool textFieldSize = false;
+  File? _video;
+  File? _cameraVideo;
+  VideoPlayerController? _videoPlayerController;
+  VideoPlayerController? _cameraVideoPlayerController;
+
+  _pickVideo() async {
+    XFile? pickedFile =
+        await ImagePicker().pickVideo(source: ImageSource.gallery);
+
+    _video = File(pickedFile!.path);
+
+    _videoPlayerController = VideoPlayerController.file(_video!)
+      ..initialize().then((_) {
+        setState(() {});
+        _videoPlayerController!.play();
+      });
+  }
+
+  LatLng addressLatLng = const LatLng(25.276987, 55.296249);
+  late GoogleMapController _googleMapController;
+
+  //static const LatLng showLocation = const LatLng(31.975697, 35.859400);
 
   @override
   Widget build(BuildContext context) {
@@ -259,11 +409,13 @@ class _MyHomePageState extends State<MyHomePage>
                               width: width * 1.0,
                               color: Colors.white,
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 child: Row(
                                   children: [
                                     Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         GestureDetector(
                                           onTap: () {
@@ -290,30 +442,37 @@ class _MyHomePageState extends State<MyHomePage>
                                       width: width * 0.02,
                                     ),
                                     Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                       Row(children: [
-                                         Text(
-                                           getUserInfo["first_name"],
-                                           style: TextStyle(
-                                             color: Colors.black,
-                                             fontSize: 12.0,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                         SizedBox(width: 3,),
-                                         Text(
-                                           getUserInfo["last_name"],
-                                           style: TextStyle(
-                                             color: Colors.black,
-                                             fontSize: 12.0,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                       ],),
-                                        SizedBox(height: 4,),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              getUserInfo["first_name"],
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 12.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 3,
+                                            ),
+                                            Text(
+                                              getUserInfo["last_name"],
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 12.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 4,
+                                        ),
                                         Text(
-                                          "@ ${ getUserInfo["username"]}",
+                                          "@ ${getUserInfo["username"]}",
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 9.0,
@@ -332,85 +491,93 @@ class _MyHomePageState extends State<MyHomePage>
                                     SizedBox(
                                       width: 30,
                                     ),
-
-                                 Padding(
-                                   padding: const EdgeInsets.symmetric(vertical: 20),
-                                   child: Row(
-
-                                     children: [  Column(
-                                     children: [
-                                       Text(
-                                         "Posts",
-                                         style: TextStyle(
-                                           color: Colors.black,
-                                           fontSize: 12.0,
-                                           fontWeight: FontWeight.bold,
-                                         ),
-                                         maxLines: 1,
-                                       ),
-                                       SizedBox(height: 10,),
-                                       Text(
-                                         getUserInfo['details']
-                                         ["post_count"],
-                                         style: TextStyle(
-                                           color: Colors.black,
-                                           fontSize: 12.0,
-                                           fontWeight: FontWeight.bold,
-                                         ),
-                                       ),
-                                     ],
-                                   ),
-                                     SizedBox(width: 25,),
-                                     Column(
-                                       children: [
-
-                                         Text(
-                                           "Following",
-                                           style: TextStyle(
-                                             color: Colors.black,
-                                             fontSize: 12.0,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                         SizedBox(height: 10,),
-                                         Text(
-                                           getUserInfo['details']
-                                           ["following_count"],
-                                           style: TextStyle(
-                                             color: Colors.black,
-                                             fontSize: 12.0,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                       ],
-                                     ),
-                                     SizedBox(width: 25,),
-
-                                     Column(
-
-                                       children: [
-
-                                         Text(
-                                           "Followers",
-                                           style: TextStyle(
-                                             color: Colors.black,
-                                             fontSize: 12.0,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                         SizedBox(height: 10,),
-                                         Text(
-                                           getUserInfo['details']
-                                           ["followers_count"],
-                                           style: TextStyle(
-                                             color: Colors.black,
-                                             fontSize: 12.0,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                       ],
-                                     )],),
-                                 )
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 20),
+                                      child: Row(
+                                        children: [
+                                          Column(
+                                            children: [
+                                              Text(
+                                                "Posts",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                maxLines: 1,
+                                              ),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                getUserInfo['details']
+                                                    ["post_count"],
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            width: 25,
+                                          ),
+                                          Column(
+                                            children: [
+                                              Text(
+                                                "Following",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                getUserInfo['details']
+                                                    ["following_count"],
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            width: 25,
+                                          ),
+                                          Column(
+                                            children: [
+                                              Text(
+                                                "Followers",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                getUserInfo['details']
+                                                    ["followers_count"],
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    )
                                   ],
                                 ),
                               ),
@@ -594,8 +761,1169 @@ class _MyHomePageState extends State<MyHomePage>
                           onTap: () {
                             showDialog(
                                 context: context,
-                                builder: (BuildContext context) {
-                                  return CustomDialogBox();
+                                builder: (_) {
+                                  return StatefulBuilder(builder: (BuildContext
+                                          context,
+                                      void Function(void Function()) setState) {
+                                    return Dialog(
+                                      // clipBehavior: Clip.none,
+                                      backgroundColor: Colors.white,
+                                      insetPadding: EdgeInsets.all(12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15.0),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            // height: MediaQuery.of(context).size.height * 0.92,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 14.0,
+                                                vertical: 10.0),
+                                            width: double.infinity,
+                                            // decoration: BoxDecoration(
+                                            //   borderRadius: BorderRadius.circular(15.0),
+                                            // ),
+                                            child: SingleChildScrollView(
+                                              child: Column(
+                                                children: [
+                                                  SizedBox(
+                                                    height: 17.0,
+                                                  ),
+                                                  TextFormField(
+                                                    controller: postController,
+                                                    maxLines: 3,
+                                                    decoration: InputDecoration(
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderSide:
+                                                            BorderSide.none,
+                                                      ),
+                                                      hintText:
+                                                          "What\'s happening",
+                                                      hintStyle: TextStyle(
+                                                          fontSize: 18.5),
+                                                    ),
+                                                  ),
+                                                  _video != null
+                                                      ?
+                                                      // _videoPlayerController!.value.initialized
+                                                      SizedBox(
+                                                          height: 400,
+                                                          width:
+                                                              double.infinity,
+                                                          child: AspectRatio(
+                                                              aspectRatio:
+                                                                  16 / 9,
+                                                              child: Stack(
+                                                                  children: [
+                                                                    Positioned.fill(
+                                                                        child: Container(
+                                                                            foregroundDecoration: BoxDecoration(
+                                                                              gradient: LinearGradient(colors: [
+                                                                                Colors.black.withOpacity(.7),
+                                                                                Colors.transparent
+                                                                              ], stops: [
+                                                                                0,
+                                                                                .3
+                                                                              ], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+                                                                            ),
+                                                                            child: VideoPlayer(_videoPlayerController!))),
+                                                                    Positioned
+                                                                        .fill(
+                                                                      child:
+                                                                          Column(
+                                                                        children: [
+                                                                          Expanded(
+                                                                            flex:
+                                                                                8,
+                                                                            child:
+                                                                                Row(
+                                                                              children: [
+                                                                                Expanded(
+                                                                                  flex: 3,
+                                                                                  child: GestureDetector(
+                                                                                    onDoubleTap: () async {
+                                                                                      Duration? position = await _videoPlayerController!.position;
+                                                                                      setState(() {
+                                                                                        _videoPlayerController!.seekTo(Duration(seconds: position!.inSeconds - 10));
+                                                                                      });
+                                                                                    },
+                                                                                    child: const Icon(
+                                                                                      Icons.fast_rewind_rounded,
+                                                                                      color: kAppColor,
+                                                                                      size: 40,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                Expanded(
+                                                                                    flex: 4,
+                                                                                    child: IconButton(
+                                                                                      icon: Icon(
+                                                                                        _videoPlayerController!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                                                                                        color: kAppColor,
+                                                                                        size: 40,
+                                                                                      ),
+                                                                                      onPressed: () {
+                                                                                        setState(() {
+                                                                                          if (_videoPlayerController!.value.isPlaying) {
+                                                                                            _videoPlayerController!.pause();
+                                                                                          } else {
+                                                                                            _videoPlayerController!.play();
+                                                                                          }
+                                                                                        });
+                                                                                      },
+                                                                                    )),
+                                                                                Expanded(
+                                                                                  flex: 3,
+                                                                                  child: GestureDetector(
+                                                                                    onDoubleTap: () async {
+                                                                                      Duration? position = await _videoPlayerController!.position;
+                                                                                      setState(() {
+                                                                                        _videoPlayerController!.seekTo(Duration(seconds: position!.inSeconds + 10));
+                                                                                      });
+                                                                                    },
+                                                                                    child: const Icon(
+                                                                                      Icons.fast_forward_rounded,
+                                                                                      color: kAppColor,
+                                                                                      size: 40,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ])),
+                                                        )
+                                                      : Container(),
+                                                  imageFile != null
+                                                      ? Container(
+                                                          height: 300,
+                                                          width:
+                                                              double.infinity,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        15),
+
+                                                            color: Colors
+                                                                .grey.shade100,
+                                                            // image: DecorationImage(
+                                                            //   image: FileImage(imageFile!),
+                                                            //   fit: BoxFit.fill,
+                                                            // )
+                                                          ),
+                                                          child: Image.file(
+                                                            imageFile!,
+                                                            fit: BoxFit.cover,
+                                                          ))
+                                                      : Container(),
+                                                  location.text !=""
+                                                      ? Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                            color: kAppColor,
+                                                          ),
+                                                          height: 50,
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(
+                                                                Icons
+                                                                    .location_on_outlined,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                              Expanded(
+                                                                  child: Text(
+                                                                    location.text,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400),
+                                                              )),
+                                                            ],
+                                                          ))
+                                                      : Container(),
+                                                  SizedBox(
+                                                    height: 30,
+                                                  ),
+                                                  Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 8),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            InkWell(
+                                                              onTap: () {
+                                                                print(
+                                                                    "vido link is $_video");
+                                                              },
+                                                              child: Image(
+                                                                image: AssetImage(
+                                                                    'images/color_pick.png'),
+                                                                width: 23,
+                                                                height: 23,
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 6.0,
+                                                            ),
+                                                            Container(
+                                                              // height: 30.0,
+                                                              // width: MediaQuery.of(context).size.width * 0.235,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                vertical: 6,
+                                                                horizontal: 6,
+                                                              ),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8.0),
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                              ),
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Container(
+                                                                    height: 14,
+                                                                    width: 14,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              50),
+                                                                      image:
+                                                                          DecorationImage(
+                                                                        image: AssetImage(
+                                                                            "images/eveyone.png"),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 4.0,
+                                                                  ),
+                                                                  Text(
+                                                                    'Everyone',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            11.0,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 6.0,
+                                                            ),
+                                                            Container(
+                                                              // height: 25.0,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                vertical: 5,
+                                                                horizontal: 5,
+                                                              ),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8.0),
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                              ),
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
+                                                                children: [
+                                                                  Text(
+                                                                    'Everyone',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            11.0,
+                                                                        color: Colors
+                                                                            .black),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 8.0,
+                                                                  ),
+                                                                  Container(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .withOpacity(
+                                                                            0.5),
+                                                                    child:
+                                                                        Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .spaceBetween,
+                                                                      children: [
+                                                                        Container(
+                                                                          alignment:
+                                                                              Alignment.center,
+                                                                          height:
+                                                                              7.0,
+                                                                          width:
+                                                                              10.0,
+                                                                          color: Colors
+                                                                              .grey
+                                                                              .withOpacity(0.5),
+                                                                          child:
+                                                                              Image(
+                                                                            image:
+                                                                                AssetImage('images/arrow-up.png'),
+                                                                          ),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height:
+                                                                              2.5,
+                                                                        ),
+                                                                        Container(
+                                                                          alignment:
+                                                                              Alignment.center,
+                                                                          height:
+                                                                              7.0,
+                                                                          width:
+                                                                              10.0,
+                                                                          color: Colors
+                                                                              .grey
+                                                                              .withOpacity(0.5),
+                                                                          child:
+                                                                              Image(
+                                                                            image:
+                                                                                AssetImage('images/arrow-down.png'),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              '#',
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      20.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 8.0,
+                                                            ),
+                                                            Text(
+                                                              '@',
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      20.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 8.0,
+                                                            ),
+                                                            CircleAvatar(
+                                                              backgroundImage:
+                                                                  AssetImage(
+                                                                      'images/emoji.png'),
+                                                              radius: 9.0,
+                                                              backgroundColor:
+                                                                  Colors.white,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 8.0,
+                                                  ),
+                                                  Container(
+                                                    height: 1.0,
+                                                    width: double.infinity,
+                                                    color: Colors.black
+                                                        .withOpacity(0.3),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20.0,
+                                                  ),
+                                                  Container(
+                                                    // color: Colors.blue,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            0.35,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 6,
+                                                            vertical: 8),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            GestureDetector(
+                                                              onTap: () async {
+                                                                await getImageGallery();
+                                                                setState(() {});
+                                                              },
+                                                              child: Container(
+                                                                width: 135,
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            4,
+                                                                        vertical:
+                                                                            8),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .withOpacity(
+                                                                          0.5),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10.0),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                              5),
+                                                                      height:
+                                                                          25,
+                                                                      width: 25,
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        shape: BoxShape
+                                                                            .circle,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
+                                                                      child:
+                                                                          Image(
+                                                                        image: AssetImage(
+                                                                            'images/gallery.png'),
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      width:
+                                                                          7.0,
+                                                                    ),
+                                                                    Text(
+                                                                      'Upload Images',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            12.0,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            GestureDetector(
+                                                              onTap: () async {
+                                                                await _pickVideo();
+                                                                //getVideoGallery();
+                                                                setState(() {});
+                                                              },
+                                                              child: Container(
+                                                                width: 135,
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            4,
+                                                                        vertical:
+                                                                            8),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .withOpacity(
+                                                                          0.5),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10.0),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                              5),
+                                                                      height:
+                                                                          25,
+                                                                      width: 25,
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        shape: BoxShape
+                                                                            .circle,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
+                                                                      child:
+                                                                          Image(
+                                                                        image: AssetImage(
+                                                                            'images/video.png'),
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      width:
+                                                                          8.0,
+                                                                    ),
+                                                                    Text(
+                                                                      'Upload Video',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            12.0,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Container(
+                                                              width: 135,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          4,
+                                                                      vertical:
+                                                                          8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .all(5),
+                                                                    height: 25,
+                                                                    width: 25,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      shape: BoxShape
+                                                                          .circle,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    child:
+                                                                        Image(
+                                                                      image: AssetImage(
+                                                                          'images/gif.png'),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 7.0,
+                                                                  ),
+                                                                  Text(
+                                                                    'GIF',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              width: 135,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          4,
+                                                                      vertical:
+                                                                          8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .all(5),
+                                                                    height: 25,
+                                                                    width: 25,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      shape: BoxShape
+                                                                          .circle,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    child:
+                                                                        Image(
+                                                                      image: AssetImage(
+                                                                          'images/voice.png'),
+                                                                      color: Color.fromARGB(
+                                                                              255,
+                                                                              15,
+                                                                              237,
+                                                                              226)
+                                                                          .withOpacity(
+                                                                              0.5),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 6.0,
+                                                                  ),
+                                                                  Text(
+                                                                    'Upload Recording',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Container(
+                                                              width: 135,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          4,
+                                                                      vertical:
+                                                                          8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .all(5),
+                                                                    height: 25,
+                                                                    width: 25,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      shape: BoxShape
+                                                                          .circle,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    child:
+                                                                        Image(
+                                                                      image: AssetImage(
+                                                                          'images/h-emoji.png'),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 7.0,
+                                                                  ),
+                                                                  Text(
+                                                                    'Feelings',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              width: 135,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          4,
+                                                                      vertical:
+                                                                          8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .all(5),
+                                                                    height: 25,
+                                                                    width: 25,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      shape: BoxShape
+                                                                          .circle,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    child:
+                                                                        Image(
+                                                                      image: AssetImage(
+                                                                          'images/upload-files.png'),
+                                                                      color: Colors
+                                                                          .purple,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 6.0,
+                                                                  ),
+                                                                  Text(
+                                                                    'Upload Files',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Container(
+                                                              width: 135,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          4,
+                                                                      vertical:
+                                                                          8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .all(5),
+                                                                    height: 25,
+                                                                    width: 25,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      shape: BoxShape
+                                                                          .circle,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    child:
+                                                                        Image(
+                                                                      image: NetworkImage(
+                                                                          'https://www.dreamhost.com/blog/wp-content/uploads/2019/06/afa314e6-1ae4-46c5-949e-c0a77f042e4f_DreamHost-howto-prod-descrips-full-750x500.jpeg'),
+                                                                      color: Colors
+                                                                          .orange,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 7.0,
+                                                                  ),
+                                                                  Text(
+                                                                    'Sell Products',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              width: 135,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          4,
+                                                                      vertical:
+                                                                          8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .all(5),
+                                                                    height: 25,
+                                                                    width: 25,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      shape: BoxShape
+                                                                          .circle,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    child:
+                                                                        Image(
+                                                                      image: AssetImage(
+                                                                          'images/chart.png'),
+                                                                      color: Colors
+                                                                          .black54,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 6.0,
+                                                                  ),
+                                                                  Text(
+                                                                    'Create Roll',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            GestureDetector(
+                                                              onTap: () async {
+                                                                await showPlacePicker();
+                                                                setState(() {});
+                                                              },
+                                                              child: Container(
+                                                                width: 135,
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            4,
+                                                                        vertical:
+                                                                            8),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .withOpacity(
+                                                                          0.5),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10.0),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                              5),
+                                                                      height:
+                                                                          25,
+                                                                      width: 25,
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        shape: BoxShape
+                                                                            .circle,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
+                                                                      child:
+                                                                          Image(
+                                                                        image: AssetImage(
+                                                                            'images/location-icon.png'),
+                                                                        color: Color.fromARGB(
+                                                                            255,
+                                                                            151,
+                                                                            106,
+                                                                            89),
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      width:
+                                                                          7.0,
+                                                                    ),
+                                                                    Text(
+                                                                      'Location',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            12.0,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              width: 135,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          4,
+                                                                      vertical:
+                                                                          8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding:
+                                                                        EdgeInsets
+                                                                            .all(5),
+                                                                    height: 25,
+                                                                    width: 25,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      shape: BoxShape
+                                                                          .circle,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    child:
+                                                                        Image(
+                                                                      image: AssetImage(
+                                                                          'images/audio.png'),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 6.0,
+                                                                  ),
+                                                                  Text(
+                                                                    'Audio Upload',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 25.0,
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      print("click");
+                                                      createPost();
+                                                      // setState(() {
+                                                      //
+                                                      // });
+                                                      // Navigator.pop(context);
+                                                      // postController.clear();
+                                                    },
+                                                    child: Container(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        height: 50,
+                                                        width: 140,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.orange,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10.0),
+                                                        ),
+                                                        child: isLoad
+                                                            ? CircularProgressIndicator()
+                                                            : Text(
+                                                                'Publish',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      18.0,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                              )),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            right: 16,
+                                            top: 15,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(
+                                                  () {
+                                                    imageFile = null;
+                                                    _video = null;
+                                                    location.text = "";
+                                                  },
+                                                );
+                                                Navigator.pop(context);
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.all(3),
+                                                height: 20,
+                                                width: 20,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.4),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Image(
+                                                  image: AssetImage(
+                                                      'images/reject.png'),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  });
                                 });
                           },
                           child: Text(
@@ -728,8 +2056,7 @@ class _MyHomePageState extends State<MyHomePage>
                             ),
                           ),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Text(
                                 "Your Feed",
@@ -766,8 +2093,7 @@ class _MyHomePageState extends State<MyHomePage>
                             ),
                           ),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Text(
                                 "Day",
@@ -900,6 +2226,11 @@ class _MyHomePageState extends State<MyHomePage>
                           physics: NeverScrollableScrollPhysics(),
                           itemCount: postData.length, //photoList.length,
                           itemBuilder: (context, index) {
+                            showLocation = LatLng(
+                                double.parse(postData[index]['lat_']),
+                                double.parse(postData[index]['lng_']));
+                            addres = postData[index]['postMap'].toString();
+
                             return Column(
                               children: [
                                 Row(
@@ -920,18 +2251,29 @@ class _MyHomePageState extends State<MyHomePage>
                                           SizedBox(
                                             width: width * 0.05,
                                           ),
-                                          Container(
-                                            height: 65,
-                                            width: 65,
-                                            decoration: BoxDecoration(
-                                              color: Colors.red,
-                                              shape: BoxShape.circle,
-                                              image: DecorationImage(
-                                                image: NetworkImage(
-                                                  postData[index]['publisher']
-                                                      ['avatar'],
+                                          GestureDetector(
+                                            onTap: () {
+
+                                              // print(
+                                              //     postData[index]['postFile']);
+                                              //
+                                              // print(postData[index]['postFile']
+                                              //     .split(".")
+                                              //     .last);
+                                            },
+                                            child: Container(
+                                              height: 65,
+                                              width: 65,
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  image: NetworkImage(
+                                                    postData[index]['publisher']
+                                                        ['avatar'],
+                                                  ),
+                                                  //   fit: BoxFit.fill
                                                 ),
-                                                //   fit: BoxFit.fill
                                               ),
                                             ),
                                           ),
@@ -1015,6 +2357,9 @@ class _MyHomePageState extends State<MyHomePage>
                                                       color: Colors.black,
                                                       fontSize: 16)),
                                                 ),
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
                                                 postData[index]
                                                             ['postFile_full'] !=
                                                         ""
@@ -1022,94 +2367,16 @@ class _MyHomePageState extends State<MyHomePage>
                                                                 'postFileThumb'] !=
                                                             ""
                                                         ? Container(
+                                                            color: kAppColor,
                                                             // height: 380.0,
                                                             child: Center(
                                                                 child:
-                                                                    GestureDetector(
-                                                            onTap: () {
-                                                              video = postData[
-                                                                      index][
-                                                                  'postFile_full'];
-                                                              print(
-                                                                  'Here is video url i think $video');
-                                                            },
-                                                            child: AspectRatio(
-                                                              aspectRatio: 16/9,
-                                                              child: BetterPlayer.network(
-                                                                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-                                                                betterPlayerConfiguration: BetterPlayerConfiguration(
-                                                                  aspectRatio: 16/9,
-                                                                ),
+                                                                    VideoPlay(
 
-                                                              )
-                                                            )
-                                                            // Stack(
-                                                            //   children: [
-                                                            //     Column(
-                                                            //         children: [
-                                                            //           AspectRatio(
-                                                            //             aspectRatio: controller
-                                                            //                 .value
-                                                            //                 .aspectRatio,
-                                                            //             child: VideoPlayer(
-                                                            //                 controller),
-                                                            //           ),
-                                                            //           VideoProgressIndicator(
-                                                            //               controller,
-                                                            //               allowScrubbing:
-                                                            //                   true,
-                                                            //               colors:
-                                                            //                   VideoProgressColors(
-                                                            //                 backgroundColor:
-                                                            //                     Colors.redAccent,
-                                                            //                 playedColor:
-                                                            //                     Colors.green,
-                                                            //                 bufferedColor:
-                                                            //                     Colors.purple,
-                                                            //               )),
-                                                            //           Container(
-                                                            //             //duration of video
-                                                            //             child: Text("Total Duration: " +
-                                                            //                 controller.value.duration.toString()),
-                                                            //           ),
-                                                            //           // IconButton(
-                                                            //           //     onPressed:
-                                                            //           //         () {
-                                                            //           //       controller.seekTo(
-                                                            //           //           Duration(
-                                                            //           //               seconds: 0));
-                                                            //           //
-                                                            //           //       setState(() {});
-                                                            //           //     },
-                                                            //           //     icon:
-                                                            //           //     Icon(Icons.stop))
-                                                            //         ]),
-                                                            //     Positioned.fill(
-                                                            //       child: Align(
-                                                            //         alignment:
-                                                            //             Alignment
-                                                            //                 .center,
-                                                            //         child: IconButton(
-                                                            //             onPressed: () {
-                                                            //               if (controller
-                                                            //                   .value
-                                                            //                   .isPlaying) {
-                                                            //                 controller.pause();
-                                                            //               } else {
-                                                            //                 controller.play();
-                                                            //               }
-                                                            //
-                                                            //               setState(
-                                                            //                   () {});
-                                                            //             },
-                                                            //             icon: Icon(controller.value.isPlaying ? Icons.pause : Icons.play_arrow, color: Colors.white)),
-                                                            //       ),
-                                                            //     ),
-                                                            //   ],
-                                                            // ),
-                                                            // Text("Here place of video we Add soon",style: TextStyle(color: Colors.black, fontSize: 16),
-                                                            // )
-                                                          )))
+                                                              pathh: postData[
+                                                                      index][
+                                                                  'postFile_full'],
+                                                            )))
                                                         : Container(
                                                             height: 300.0,
                                                             child:
@@ -1124,9 +2391,6 @@ class _MyHomePageState extends State<MyHomePage>
                                                             ),
                                                           )
                                                     : Container()
-
-
-
 
                                                 // GestureDetector(
                                                 //   onTap: (){
@@ -1148,45 +2412,100 @@ class _MyHomePageState extends State<MyHomePage>
                                                 // ),
                                               ],
                                             )),
-                                      )
-                                    : (postData[index]['postFile_full'] != ""
-                                        ? Container(
+                                      ):
+                                     postData[index]['postMap'] != ""
+                                        ?  GestureDetector(
+                            onTap:(){
+                          print("longitude and lat is == $showLocation");
+                          print("adrees == $addres");
+                            },
+                              child:  Container(
                                             height: 300.0,
-                                            child: Image.network(
-                                              postData[index]['postFile_full'],
-                                              width: width * 1.0,
-                                              height: height * 0.3,
-                                              fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            alignment: Alignment.center,
+                                            child: GoogleMap(
+                                              zoomGesturesEnabled:false,
+                                              initialCameraPosition:
+                                                  CameraPosition(
+                                                target: LatLng(
+                                                    double.parse(postData[index]
+                                                        ['lat_']),
+                                                    double.parse(postData[index]
+                                                        ['lng_'])),
+                                                //showLocation,
+
+                                                zoom:
+                                                    15.151926040649414, //initial zoom level
+                                              ),
+
+
+
+                                              onMapCreated: (controller) =>
+                                                  _googleMapController =
+                                                      controller,
+                                              markers:getmarkers(),
                                             ),
-                                          )
-                                        : CarouselSlider(
-                                            items: <Widget>[
-                                                Image.network(
-                                                  postData[index]['product']
-                                                      ['images'][0]['image'],
-                                                  width: width * 1.0,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                                Image.network(
-                                                  postData[index]['product']
-                                                          ['images'][0]
-                                                      ['image_org'],
-                                                  width: width * 1.0,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ],
-                                            options: CarouselOptions(
-                                              height: 300.0,
-                                              enlargeCenterPage: true,
-                                              autoPlay: false,
-                                              aspectRatio: 1.2,
-                                              autoPlayCurve:
-                                                  Curves.fastOutSlowIn,
-                                              enableInfiniteScroll: true,
-                                              autoPlayAnimationDuration:
-                                                  Duration(milliseconds: 800),
-                                              viewportFraction: 0.8,
-                                            ))),
+                                          )):
+
+
+                                         (
+                                             postData[index]['postFile_full'] !=
+                                                "" ? postData[index]['postFile']
+                                                            .split(".")
+                                                            .last ==
+                                                        "mp4"
+                                                || postData[index]
+                                                            ['postFileThumb'] !=
+                                                        ""
+                                                    ? Container(
+                                                        color: kAppColor,
+                                                        // height: 380.0,
+                                                        child: Center(
+                                                            child: VideoPlay(
+                                                          pathh: postData[index]
+                                                              ['postFile_full'],
+                                                        )))
+                                                    : Container(
+                                                        height: 300.0,
+                                                        child: Image.network(
+                                                          postData[index]
+                                                              ['postFile_full'],
+                                                          width: width * 1.0,
+                                                          height: height * 0.3,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      )
+
+                                            : CarouselSlider(
+                                                items: <Widget>[
+                                                    Image.network(
+                                                      postData[index]['product']
+                                                              ['images'][0]
+                                                          ['image'],
+                                                      width: width * 1.0,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                    // Image.network(
+                                                    //   postData[index]['product']
+                                                    //           ['images'][0]
+                                                    //       ['image_org'],
+                                                    //   width: width * 1.0,
+                                                    //   fit: BoxFit.cover,
+                                                    // ),
+                                                  ],
+                                                options: CarouselOptions(
+                                                  height: 300.0,
+                                                  enlargeCenterPage: true,
+                                                  autoPlay: false,
+                                                  aspectRatio: 1.2,
+                                                  autoPlayCurve:
+                                                      Curves.fastOutSlowIn,
+                                                  enableInfiniteScroll: true,
+                                                  autoPlayAnimationDuration:
+                                                      Duration(
+                                                          milliseconds: 800),
+                                                  viewportFraction: 0.8,
+                                                ))),
                                 Container(
                                   height: height * 0.1,
                                   //width: width * 0.9,
@@ -1322,6 +2641,25 @@ class _MyHomePageState extends State<MyHomePage>
         ),
       ),
     );
+  }
+
+  Set<Marker> getmarkers() {
+    //setState(() {
+      markers.add(Marker(
+        //add first marker
+        markerId: MarkerId(showLocation.toString()),
+        position: showLocation, //position of marker
+        infoWindow: InfoWindow(
+          //popup info
+          title: addres.toString(),
+          snippet: addres.toString(),
+        ),
+        icon: BitmapDescriptor.defaultMarker, //Icon for Marker
+      ));
+  //  });
+   //setState(() {});
+
+    return markers;
   }
 
   Future<void> _showMyDialog() async {
@@ -1940,7 +3278,7 @@ class _MyHomePageState extends State<MyHomePage>
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          CustomDialogBox();
+                          //CustomDialogBox();
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -2231,645 +3569,14 @@ class _MyHomePageState extends State<MyHomePage>
   }
 }
 
-class CustomDialogBox extends StatelessWidget {
-  const CustomDialogBox({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      clipBehavior: Clip.none,
-      backgroundColor: Colors.white,
-      insetPadding: EdgeInsets.all(12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      child: Stack(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.92,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
-            width: double.infinity,
-            // decoration: BoxDecoration(
-            //   borderRadius: BorderRadius.circular(15.0),
-            // ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 17.0,
-                  ),
-                  TextField(
-                    maxLines: 9, //or null
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                      ),
-                      hintText: "What\'s happening",
-                      hintStyle: TextStyle(fontSize: 18.5),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            InkWell(
-                              onTap: () {},
-                              child: Image(
-                                image: AssetImage('images/color_pick.png'),
-                                width: 23,
-                                height: 23,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 6.0,
-                            ),
-                            Container(
-                              // height: 30.0,
-                              // width: MediaQuery.of(context).size.width * 0.235,
-                              padding: EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                color: Colors.grey.withOpacity(0.5),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    height: 14,
-                                    width: 14,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(50),
-                                      image: DecorationImage(
-                                        image: AssetImage("images/eveyone.png"),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 4.0,
-                                  ),
-                                  Text(
-                                    'Everyone',
-                                    style: TextStyle(
-                                        fontSize: 11.0, color: Colors.black),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 6.0,
-                            ),
-                            Container(
-                              // height: 25.0,
-                              padding: EdgeInsets.symmetric(
-                                vertical: 5,
-                                horizontal: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                color: Colors.grey.withOpacity(0.5),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Everyone',
-                                    style: TextStyle(
-                                        fontSize: 11.0, color: Colors.black),
-                                  ),
-                                  SizedBox(
-                                    width: 8.0,
-                                  ),
-                                  Container(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          alignment: Alignment.center,
-                                          height: 7.0,
-                                          width: 10.0,
-                                          color: Colors.grey.withOpacity(0.5),
-                                          child: Image(
-                                            image: AssetImage(
-                                                'images/arrow-up.png'),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 2.5,
-                                        ),
-                                        Container(
-                                          alignment: Alignment.center,
-                                          height: 7.0,
-                                          width: 10.0,
-                                          color: Colors.grey.withOpacity(0.5),
-                                          child: Image(
-                                            image: AssetImage(
-                                                'images/arrow-down.png'),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              '#',
-                              style: TextStyle(
-                                  fontSize: 20.0, fontWeight: FontWeight.w600),
-                            ),
-                            SizedBox(
-                              width: 8.0,
-                            ),
-                            Text(
-                              '@',
-                              style: TextStyle(
-                                  fontSize: 20.0, fontWeight: FontWeight.w600),
-                            ),
-                            SizedBox(
-                              width: 8.0,
-                            ),
-                            CircleAvatar(
-                              backgroundImage: AssetImage('images/emoji.png'),
-                              radius: 9.0,
-                              backgroundColor: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 8.0,
-                  ),
-                  Container(
-                    height: 1.0,
-                    width: double.infinity,
-                    color: Colors.black.withOpacity(0.3),
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Container(
-                    // color: Colors.blue,
-                    height: MediaQuery.of(context).size.height * 0.35,
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image: AssetImage('images/gallery.png'),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 7.0,
-                                  ),
-                                  Text(
-                                    'Upload Images',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image: AssetImage('images/video.png'),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 8.0,
-                                  ),
-                                  Text(
-                                    'Upload Video',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image: AssetImage('images/gif.png'),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 7.0,
-                                  ),
-                                  Text(
-                                    'GIF',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image: AssetImage('images/voice.png'),
-                                      color: Color.fromARGB(255, 15, 237, 226)
-                                          .withOpacity(0.5),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 6.0,
-                                  ),
-                                  Text(
-                                    'Upload Recording',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image: AssetImage('images/h-emoji.png'),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 7.0,
-                                  ),
-                                  Text(
-                                    'Feelings',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image:
-                                          AssetImage('images/upload-files.png'),
-                                      color: Colors.purple,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 6.0,
-                                  ),
-                                  Text(
-                                    'Upload Files',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image: NetworkImage(
-                                          'https://www.dreamhost.com/blog/wp-content/uploads/2019/06/afa314e6-1ae4-46c5-949e-c0a77f042e4f_DreamHost-howto-prod-descrips-full-750x500.jpeg'),
-                                      color: Colors.orange,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 7.0,
-                                  ),
-                                  Text(
-                                    'Sell Products',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image: AssetImage('images/chart.png'),
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 6.0,
-                                  ),
-                                  Text(
-                                    'Create Roll',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image: AssetImage(
-                                          'images/location-icon.png'),
-                                      color: Color.fromARGB(255, 151, 106, 89),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 7.0,
-                                  ),
-                                  Text(
-                                    'Location',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 135,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(5),
-                                    height: 25,
-                                    width: 25,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Image(
-                                      image: AssetImage('images/audio.png'),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 6.0,
-                                  ),
-                                  Text(
-                                    'Audio Upload',
-                                    style: TextStyle(
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 25.0,
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: 50,
-                      width: 140,
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Text(
-                        'Public',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            right: 16,
-            top: 15,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Container(
-                padding: EdgeInsets.all(3),
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.4),
-                  shape: BoxShape.circle,
-                ),
-                child: Image(
-                  image: AssetImage('images/reject.png'),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// class CustomDialogBox extends StatelessWidget {
+//   const CustomDialogBox({Key? key}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return
+//   }
+// }
 
 class MenuItem {
   final String text;
@@ -2947,13 +3654,4 @@ class MenuItems {
         break;
     }
   }
-
-// Widget buildListItem(BuildContext context, int index) {
-//   if (postData[index]['postText']==null) {
-//     return Text("post text is null");
-//   } else {
-//     return Text("pic");
-//   }
-// }
-
 }
