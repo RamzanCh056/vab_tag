@@ -62,7 +62,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(18.0),
+        padding: const EdgeInsets.symmetric(horizontal: 25),
         child: Form(
           key: formKey,
           child: Column(
@@ -80,235 +80,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ],
                 ),
               ),
-              TextFormField(
-                controller: userNameController,
-                onChanged: (value) {
-                  //Do something with the user input.
-                },
-                decoration: InputDecoration(
-                  errorStyle:
-                      const TextStyle(color: Colors.redAccent, fontSize: 15),
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'UserName',
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 1.0),
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 2.0),
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'This field is required';
-                  }
-                },
-              ),
               SizedBox(
-                height: 4,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: Row(
-                  children: [
-                    Text("Email",
-                        style: TextStyle(color: Colors.white, fontSize: 18)),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              TextFormField(
-                controller: emailController,
-                onChanged: (value) {
-                  //Do something with the user input.
-                },
-                decoration: InputDecoration(
-                  errorStyle:
-                      const TextStyle(color: Colors.redAccent, fontSize: 15),
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'someone@gmail.com',
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 1.0),
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 2.0),
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'This field is required';
-                  } else if (!value.contains('@')) {
-                    return 'Please Enter Valid Email';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: Row(
-                  children: [
-                    Text("Password",
-                        style: TextStyle(color: Colors.white, fontSize: 18)),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              TextFormField(
-                controller: passwordController,
-                onChanged: (value) {
-                  //Do something with the user input.
-                },
-                obscureText: obc,
-                decoration: InputDecoration(
-                  errorStyle:
-                      const TextStyle(color: Colors.redAccent, fontSize: 15),
-                  filled: true,
-                  fillColor: Colors.white,
-                  suffixIcon: GestureDetector(
-                      onTap: (){
-                        setState(() {
-                          obc = !obc;
-                        });
-                      },
-
-                      child: obc? Icon(Icons.visibility):Icon(Icons.visibility_off)
-
-
-                ),
-                  hintText: 'Password',
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 1.0),
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 2.0),
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'This field is required';
-                  }
-                },
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: Row(
-                  children: [
-                    Text("Confirm Password",
-                        style: TextStyle(color: Colors.white, fontSize: 18)),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              TextFormField(
-                controller: confirmPasswordController,
-                onChanged: (value) {
-                  //Do something with the user input.
-                },
-                obscureText: obcConfirm,
-                decoration: InputDecoration(
-                  errorStyle:
-                      const TextStyle(color: Colors.redAccent, fontSize: 15),
-                  filled: true,
-                  fillColor: Colors.white,
-                  suffixIcon: GestureDetector(
-                      onTap: (){
-                        setState(() {
-                          obcConfirm = !obcConfirm;
-                        });
-                      },
-
-                      child: obcConfirm? Icon(Icons.visibility):Icon(Icons.visibility_off)
-
-
-                  ),
-                  hintText: 'Confirm Password',
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 1.0),
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 2.0),
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'This field is required';
-                  }
-                },
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: Row(
-                  children: [
-                    Text("Body type",
-                        style: TextStyle(color: Colors.white, fontSize: 18)),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogForBodyType();
-                },
+                height: 40,
                 child: TextFormField(
-                  controller: bdyTypeController,
+                  controller: userNameController,
                   onChanged: (value) {
                     //Do something with the user input.
                   },
-                  enabled: false,
                   decoration: InputDecoration(
                     errorStyle:
                         const TextStyle(color: Colors.redAccent, fontSize: 15),
                     filled: true,
                     fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    hintText: 'Select',
+                    hintText: 'UserName',
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                     border: OutlineInputBorder(
@@ -328,6 +112,237 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       return 'This field is required';
                     }
                   },
+                ),
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Row(
+                  children: [
+                    Text("Email",
+                        style: TextStyle(color: Colors.white, fontSize: 18)),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              SizedBox(
+                height: 40,
+                child: TextFormField(
+                  controller: emailController,
+                  onChanged: (value) {
+                    //Do something with the user input.
+                  },
+                  decoration: InputDecoration(
+                    errorStyle:
+                        const TextStyle(color: Colors.redAccent, fontSize: 15),
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: 'someone@gmail.com',
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 1.0),
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 2.0),
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'This field is required';
+                    } else if (!value.contains('@')) {
+                      return 'Please Enter Valid Email';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Row(
+                  children: [
+                    Text("Password",
+                        style: TextStyle(color: Colors.white, fontSize: 18)),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              SizedBox(
+                height: 40,
+                child: TextFormField(
+                  controller: passwordController,
+                  onChanged: (value) {
+                    //Do something with the user input.
+                  },
+                  obscureText: obc,
+                  decoration: InputDecoration(
+                    errorStyle:
+                        const TextStyle(color: Colors.redAccent, fontSize: 15),
+                    filled: true,
+                    fillColor: Colors.white,
+                    suffixIcon: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            obc = !obc;
+                          });
+                        },
+
+                        child: obc? Icon(Icons.visibility):Icon(Icons.visibility_off)
+
+
+                  ),
+                    hintText: 'Password',
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 1.0),
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 2.0),
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'This field is required';
+                    }
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Row(
+                  children: [
+                    Text("Confirm Password",
+                        style: TextStyle(color: Colors.white, fontSize: 18)),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              SizedBox(
+                height: 40,
+                child: TextFormField(
+                  controller: confirmPasswordController,
+                  onChanged: (value) {
+                    //Do something with the user input.
+                  },
+                  obscureText: obcConfirm,
+                  decoration: InputDecoration(
+                    errorStyle:
+                        const TextStyle(color: Colors.redAccent, fontSize: 15),
+                    filled: true,
+                    fillColor: Colors.white,
+                    suffixIcon: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            obcConfirm = !obcConfirm;
+                          });
+                        },
+
+                        child: obcConfirm? Icon(Icons.visibility):Icon(Icons.visibility_off)
+
+
+                    ),
+                    hintText: 'Confirm Password',
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 1.0),
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 2.0),
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'This field is required';
+                    }
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Row(
+                  children: [
+                    Text("Body type",
+                        style: TextStyle(color: Colors.white, fontSize: 18)),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogForBodyType();
+                  },
+                  child: TextFormField(
+                    controller: bdyTypeController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                          const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      hintText: 'Select',
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
+                  ),
                 ),
               ),
               SizedBox(
@@ -345,43 +360,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 height: 4,
               ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogForHeight();
-                },
-                child: TextFormField(
-                  controller: heightController,
-                  onChanged: (value) {
-                    //Do something with the user input.
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogForHeight();
                   },
-                  enabled: false,
-                  decoration: InputDecoration(
-                    errorStyle:
-                    const TextStyle(color: Colors.redAccent, fontSize: 15),
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    hintText: 'Select',
-                    contentPadding:
-                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  child: TextFormField(
+                    controller: heightController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                      const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      hintText: 'Select',
+                      contentPadding:
+                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'This field is required';
-                    }
-                  },
                 ),
               ),
               Padding(
@@ -396,44 +414,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 height: 4,
               ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogForEyeColor();
-                },
-                child: TextFormField(
-                  controller: eyeColorController,
-                  onChanged: (value) {
-                    //Do something with the user input.
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogForEyeColor();
                   },
-                  enabled: false,
-                  decoration: InputDecoration(
-                    errorStyle:
-                        const TextStyle(color: Colors.redAccent, fontSize: 15),
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    //  prefixIcon: Icon(Icons.sel),
-                    hintText: 'Select',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  child: TextFormField(
+                    controller: eyeColorController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                          const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      //  prefixIcon: Icon(Icons.sel),
+                      hintText: 'Select',
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'This field is required';
-                    }
-                  },
                 ),
               ),
               SizedBox(
@@ -451,44 +472,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 height: 4,
               ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogHairColor();
-                },
-                child: TextFormField(
-                  controller: hairColorController,
-                  onChanged: (value) {
-                    //Do something with the user input.
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogHairColor();
                   },
-                  enabled: false,
-                  decoration: InputDecoration(
-                    errorStyle:
-                        const TextStyle(color: Colors.redAccent, fontSize: 15),
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    //  prefixIcon: Icon(Icons.sel),
-                    hintText: 'Select',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  child: TextFormField(
+                    controller: hairColorController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                          const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      //  prefixIcon: Icon(Icons.sel),
+                      hintText: 'Select',
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'This field is required';
-                    }
-                  },
                 ),
               ),
               SizedBox(
@@ -506,44 +530,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 height: 4,
               ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogForReligion();
-                },
-                child: TextFormField(
-                  controller: religionController,
-                  onChanged: (value) {
-                    //Do something with the user input.
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogForReligion();
                   },
-                  enabled: false,
-                  decoration: InputDecoration(
-                    errorStyle:
-                        const TextStyle(color: Colors.redAccent, fontSize: 15),
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    //  prefixIcon: Icon(Icons.sel),
-                    hintText: 'Select',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  child: TextFormField(
+                    controller: religionController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                          const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      //  prefixIcon: Icon(Icons.sel),
+                      hintText: 'Select',
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'This field is required';
-                    }
-                  },
                 ),
               ),
               SizedBox(
@@ -561,44 +588,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 height: 4,
               ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogForSmoke();
-                },
-                child: TextFormField(
-                  controller: smokeController,
-                  onChanged: (value) {
-                    //Do something with the user input.
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogForSmoke();
                   },
-                  enabled: false,
-                  decoration: InputDecoration(
-                    errorStyle:
-                        const TextStyle(color: Colors.redAccent, fontSize: 15),
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    //  prefixIcon: Icon(Icons.sel),
-                    hintText: 'Select',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  child: TextFormField(
+                    controller: smokeController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                          const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      //  prefixIcon: Icon(Icons.sel),
+                      hintText: 'Select',
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'This field is required';
-                    }
-                  },
                 ),
               ),
               SizedBox(
@@ -619,44 +649,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 height: 4,
               ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogForChildren();
-                },
-                child: TextFormField(
-                  controller: childrenController,
-                  onChanged: (value) {
-                    //Do something with the user input.
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogForChildren();
                   },
-                  enabled: false,
-                  decoration: InputDecoration(
-                    errorStyle:
-                        const TextStyle(color: Colors.redAccent, fontSize: 15),
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    //  prefixIcon: Icon(Icons.sel),
-                    hintText: 'Select',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  child: TextFormField(
+                    controller: childrenController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                          const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      //  prefixIcon: Icon(Icons.sel),
+                      hintText: 'Select',
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'This field is required';
-                    }
-                  },
                 ),
               ),
               SizedBox(
@@ -674,44 +707,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 height: 4,
               ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogForPets();
-                },
-                child: TextFormField(
-                  controller: petsController,
-                  onChanged: (value) {
-                    //Do something with the user input.
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogForPets();
                   },
-                  enabled: false,
-                  decoration: InputDecoration(
-                    errorStyle:
-                        const TextStyle(color: Colors.redAccent, fontSize: 15),
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    //  prefixIcon: Icon(Icons.sel),
-                    hintText: 'Select',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  child: TextFormField(
+                    controller: petsController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                          const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      //  prefixIcon: Icon(Icons.sel),
+                      hintText: 'Select',
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'This field is required';
-                    }
-                  },
                 ),
               ),
               SizedBox(
@@ -729,44 +765,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 height: 4,
               ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogForEducation();
-                },
-                child: TextFormField(
-                  controller: educationController,
-                  onChanged: (value) {
-                    //Do something with the user input.
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogForEducation();
                   },
-                  enabled: false,
-                  decoration: InputDecoration(
-                    errorStyle:
-                        const TextStyle(color: Colors.redAccent, fontSize: 15),
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    //  prefixIcon: Icon(Icons.sel),
-                    hintText: 'Select',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  child: TextFormField(
+                    controller: educationController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                          const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      //  prefixIcon: Icon(Icons.sel),
+                      hintText: 'Select',
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'This field is required';
-                    }
-                  },
                 ),
               ),
               Padding(
@@ -781,43 +820,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 height: 4,
               ),
-              GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  showDialogForEthnicity();
-                },
-                child: TextFormField(
-                  controller: EthnicityController,
-                  onChanged: (value) {
-                    //Do something with the user input.
+              SizedBox(
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    showDialogForEthnicity();
                   },
-                  enabled: false,
-                  decoration: InputDecoration(
-                    errorStyle:
-                        const TextStyle(color: Colors.redAccent, fontSize: 15),
-                    filled: true,
-                    fillColor: Colors.white,
-                    suffixIcon: Icon(Icons.arrow_drop_down),
-                    hintText: 'Select',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  child: TextFormField(
+                    controller: EthnicityController,
+                    onChanged: (value) {
+                      //Do something with the user input.
+                    },
+                    enabled: false,
+                    decoration: InputDecoration(
+                      errorStyle:
+                          const TextStyle(color: Colors.redAccent, fontSize: 15),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: Icon(Icons.arrow_drop_down),
+                      hintText: 'Select',
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required';
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'This field is required';
-                    }
-                  },
                 ),
               ),
               Row(
@@ -1544,7 +1586,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          height: 50.0,
+          height: 45.0,
           child: RaisedButton(
             onPressed: () {
               if (formKey.currentState!.validate()) {

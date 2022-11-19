@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -21,14 +22,15 @@ import 'package:vab_tag/screens/extra-screens/create_ad_mobile.dart';
 import 'package:vab_tag/screens/home/story_page.dart';
 import 'package:vab_tag/screens/home/video_player.dart';
 import 'package:video_player/video_player.dart';
-
 import '../../common/appbar.dart';
 import '../../common/colors.dart';
 import '../../common/top_appbar.dart';
+import '../../models/suspnser_model.dart';
 import '../Campaigns/campaigns.dart';
 import '../trending_event/trending_event.dart';
 import 'comments_screen.dart';
 import 'drawer.dart';
+import 'maps.dart';
 
 var postData = [];
 var getUserInfo;
@@ -61,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage>
     'assets/live-streamin.svg',
   ];
 
-  late VideoPlayerController controller;
+  // late VideoPlayerController controller;
   TabController? _tabController;
   int? bufferDelay;
 
@@ -76,10 +78,11 @@ class _MyHomePageState extends State<MyHomePage>
     getUserData();
     getHomeData();
     setState(() {});
-    _timer = Timer.periodic(
-      const Duration(seconds: 2),
-      (Timer t) => updateState(),
-    );
+    // _timer = Timer.periodic(
+    //   const Duration(seconds: 2),
+    //   (Timer t) => updateState(),
+    // );
+
 
     // initializePlayer();
     _tabController = TabController(length: 6, vsync: this);
@@ -103,6 +106,7 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {
       getHomeData();
       getUserData();
+      getSusponse();
     });
   }
 
@@ -182,15 +186,15 @@ class _MyHomePageState extends State<MyHomePage>
   bool isLoad = false;
 
   createPost() async {
-    isLoad = true;
-    setState(() {});
+    setState(() {
+      isLoad = true;
+    });
     var headers = {
-      'Cookie':
-          'PHPSESSID=bf6d262387f5eee36e33b5d186e6d9ba; _us=1666456813; access=1; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-10-21%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; mode=day; src=1'
+      'Cookie': 'PHPSESSID=f473f28ca40b056fd1a23e624a61bccc; _us=1667727587; access=1; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-11-05%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; mode=day; src=1'
     };
-    var request = http.MultipartRequest(
-        'POST', Uri.parse('https://vibetag.com/app_api.php'));
+    var request = http.MultipartRequest('POST', Uri.parse('https://vibetag.com/app_api.php'));
     request.fields.addAll({
+
       'type': 'new_post',
       'user_id': StaticInfo.userIdLogin,
       'postText': postController.text,
@@ -199,6 +203,8 @@ class _MyHomePageState extends State<MyHomePage>
       'group_id': '',
       'postPrivacy': '',
       'postMap': location.text,
+      'lat_': latitude.toString(),
+      'lng_': longitude.toString(),
       'album_name': '',
       'feeling_type': '',
       'feeling': '',
@@ -208,19 +214,25 @@ class _MyHomePageState extends State<MyHomePage>
       'answer[]': ''
     });
     if (imageFile != null) {
+      setState(() {
+        isLoad = false;
+      });
       request.files
           .add(await http.MultipartFile.fromPath('postFile', imageFile!.path));
       print("image file woth path is ${imageFile!.path}");
     }
     if (_video != null) {
+      setState(() {
+        isLoad = false;
+      });
       request.files
           .add(await http.MultipartFile.fromPath('postVideo', _video!.path));
       print("video path is ${_video!.path}");
     }
-    //request.files.add(await http.MultipartFile.fromPath('postFile', '/path/to/file'));
-    //request.files.add(await http.MultipartFile.fromPath('postVideo', '/path/to/file'));
-    // request.files.add(await http.MultipartFile.fromPath('postMusic', '/path/to/file'));
-    request.headers.addAll(headers);
+  //  request.files.add(await http.MultipartFile.fromPath('postFile', '/path/to/file'));
+  //  request.files.add(await http.MultipartFile.fromPath('postVideo', '/path/to/file'));
+   // request.files.add(await http.MultipartFile.fromPath('postMusic', '/path/to/file'));
+   // request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
@@ -230,17 +242,27 @@ class _MyHomePageState extends State<MyHomePage>
       var body = jsonDecode(res);
       var msg = body['api_text'];
       Fluttertoast.showToast(msg: "$msg");
-
       setState(() {
         isLoad = false;
       });
+      setState(() {
+        Navigator.pop(context);
+        postController.clear();
+        imageFile = null;
+        _video = null;
+        _videoPlayerController!.dispose();
+        location.text = "";
+
+      });
+
+
     } else {
       print(response.reasonPhrase);
-
       setState(() {
         isLoad = false;
       });
     }
+
   }
 
   showPlacePicker() async {
@@ -248,8 +270,9 @@ class _MyHomePageState extends State<MyHomePage>
       context,
       MaterialPageRoute(
         builder: (context) {
-          return PlacePicker(
-            apiKey: 'AIzaSyChT7iBjqvTKOK4VdtaOa9nZiSqNk38z_I',
+          return
+            PlacePicker(
+            apiKey: Platform.isAndroid?'AIzaSyCaCSJ0BZItSyXqBv8vpD1N4WBffJeKhLQ' : "AIzaSyCaCSJ0BZItSyXqBv8vpD1N4WBffJeKhLQ",
             hintText: "Select Location",
             searchingText: "Please wait ...",
             selectText: "Select place",
@@ -260,8 +283,12 @@ class _MyHomePageState extends State<MyHomePage>
               location.text= result.formattedAddress!;
               addressLatLng = LatLng(
                   result.geometry!.location.lat, result.geometry!.location.lng);
+                   latitude = result.geometry!.location.lat;
+                   longitude = result.geometry!.location.lng;
+
               Navigator.of(context).pop();
-              setState(() {});
+              setState(() {
+              });
             },
           );
         },
@@ -281,16 +308,36 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  // getVideoGallery()async{
-  //   XFile? pickedFile = await ImagePicker().pickVideo(
-  //     source: ImageSource.gallery,
-  //   );
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       videoFile = File(pickedFile.path);
-  //     });
-  //   }
-  // }
+  getSusponse() async {
+    var headers = {
+      'Cookie':
+      'PHPSESSID=149a56db22f52ca849a4c8463cf8ddc5; _us=1663499099; access=1; ad-con=%7B%26quot%3Bdate%26quot%3B%3A%26quot%3B2022-09-17%26quot%3B%2C%26quot%3Bads%26quot%3B%3A%5B%5D%7D; mode=day; src=1'
+    };
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('https://vibetag.com/app_api.php'));
+    request.fields.addAll({
+      'type': 'get_home_posts',
+      'user_id': StaticInfo.userIdLogin,
+    });
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      // print(await response.stream.bytesToString());
+      var res = await response.stream.bytesToString();
+      var body = jsonDecode(res);
+      postData = body['posts_data'];
+      for (int i = 0; i < postData.length; i++) {
+        SusponsersModel getList = SusponsersModel.fromMap(postData[i]);
+        Susponse.add(getList);
+      }
+     // print("post data is $postData");
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
   File? imageFile;
 
   // File? videoFile;
@@ -298,6 +345,10 @@ class _MyHomePageState extends State<MyHomePage>
   SharedPreferences? preferences;
   final postController = TextEditingController();
   final Set<Marker> markers = Set();
+  double?  longitude;
+  double? latitude;
+  // LatLng? longitude;
+  // LatLng? longitude;
 
   final location = TextEditingController();
   // var youLoc;
@@ -306,6 +357,7 @@ class _MyHomePageState extends State<MyHomePage>
   File? _video;
   File? _cameraVideo;
   VideoPlayerController? _videoPlayerController;
+  ChewieController? chewieController;
   VideoPlayerController? _cameraVideoPlayerController;
 
   _pickVideo() async {
@@ -319,12 +371,32 @@ class _MyHomePageState extends State<MyHomePage>
         setState(() {});
         _videoPlayerController!.play();
       });
+    chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController!,
+      aspectRatio: _videoPlayerController!.value.aspectRatio,
+      autoPlay: false,
+      looping: true,
+      materialProgressColors: ChewieProgressColors(
+          playedColor: Colors.red,
+          bufferedColor: kAppColor,
+          //  backgroundColor: Colors.green,
+          handleColor: Colors.red
+      ),);
   }
 
-  LatLng addressLatLng = const LatLng(25.276987, 55.296249);
+  List<SusponsersModel> Susponse = [];
+  LatLng addressLatLng = const LatLng(31.5204, 74.3587);
   late GoogleMapController _googleMapController;
 
-  //static const LatLng showLocation = const LatLng(31.975697, 35.859400);
+//  static const LatLng showLocation = const LatLng(31.975697, 35.859400);
+  // void launchMapsUrl(index) async {
+  //   final url = 'https://www.google.com/maps/search/?api=1&query=${widget.users[index].lat!},${widget.users[index].lng!}';
+  //   if (await canLaunch(url)) {
+  //     await launch(url);
+  //   } else {
+  //     throw 'Could not launch $url';
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -604,6 +676,32 @@ class _MyHomePageState extends State<MyHomePage>
               SizedBox(
                 height: height * 0.02,
               ),
+              // ListView.builder(
+              //     physics: ScrollPhysics(),
+              //   shrinkWrap: true,
+              //   itemCount: 3,
+              //     itemBuilder: (context,index){
+              //     return GestureDetector(
+              //       onTap: (){
+              //         print("Hey link === ${Susponse[index].ad_media!}");
+              //       },
+              //       child: Column(
+              //   children: [
+              //       GestureDetector(
+              //         onTap: (){
+              //           print("Hey link === ${Susponse[index].ad_media!}");
+              //           print("Hey link === ${Susponse[index].name!}");
+              //         },
+              //
+              //         child: Container(
+              //
+              //             child: Text(Susponse[index].name!)),
+              //       ),
+              //   ],
+              //       ),
+              //     );
+              //
+              // }),
               FutureBuilder(
                   future: getUserData(),
                   builder: (context, AsyncSnapshot snapshot) {
@@ -809,94 +907,11 @@ class _MyHomePageState extends State<MyHomePage>
                                                       ?
                                                       // _videoPlayerController!.value.initialized
                                                       SizedBox(
-                                                          height: 400,
-                                                          width:
-                                                              double.infinity,
-                                                          child: AspectRatio(
-                                                              aspectRatio:
-                                                                  16 / 9,
-                                                              child: Stack(
-                                                                  children: [
-                                                                    Positioned.fill(
-                                                                        child: Container(
-                                                                            foregroundDecoration: BoxDecoration(
-                                                                              gradient: LinearGradient(colors: [
-                                                                                Colors.black.withOpacity(.7),
-                                                                                Colors.transparent
-                                                                              ], stops: [
-                                                                                0,
-                                                                                .3
-                                                                              ], begin: Alignment.bottomCenter, end: Alignment.topCenter),
-                                                                            ),
-                                                                            child: VideoPlayer(_videoPlayerController!))),
-                                                                    Positioned
-                                                                        .fill(
-                                                                      child:
-                                                                          Column(
-                                                                        children: [
-                                                                          Expanded(
-                                                                            flex:
-                                                                                8,
-                                                                            child:
-                                                                                Row(
-                                                                              children: [
-                                                                                Expanded(
-                                                                                  flex: 3,
-                                                                                  child: GestureDetector(
-                                                                                    onDoubleTap: () async {
-                                                                                      Duration? position = await _videoPlayerController!.position;
-                                                                                      setState(() {
-                                                                                        _videoPlayerController!.seekTo(Duration(seconds: position!.inSeconds - 10));
-                                                                                      });
-                                                                                    },
-                                                                                    child: const Icon(
-                                                                                      Icons.fast_rewind_rounded,
-                                                                                      color: kAppColor,
-                                                                                      size: 40,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                                Expanded(
-                                                                                    flex: 4,
-                                                                                    child: IconButton(
-                                                                                      icon: Icon(
-                                                                                        _videoPlayerController!.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                                                                                        color: kAppColor,
-                                                                                        size: 40,
-                                                                                      ),
-                                                                                      onPressed: () {
-                                                                                        setState(() {
-                                                                                          if (_videoPlayerController!.value.isPlaying) {
-                                                                                            _videoPlayerController!.pause();
-                                                                                          } else {
-                                                                                            _videoPlayerController!.play();
-                                                                                          }
-                                                                                        });
-                                                                                      },
-                                                                                    )),
-                                                                                Expanded(
-                                                                                  flex: 3,
-                                                                                  child: GestureDetector(
-                                                                                    onDoubleTap: () async {
-                                                                                      Duration? position = await _videoPlayerController!.position;
-                                                                                      setState(() {
-                                                                                        _videoPlayerController!.seekTo(Duration(seconds: position!.inSeconds + 10));
-                                                                                      });
-                                                                                    },
-                                                                                    child: const Icon(
-                                                                                      Icons.fast_forward_rounded,
-                                                                                      color: kAppColor,
-                                                                                      size: 40,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  ])),
+                                                          height: 350,
+                                                          width: double.infinity,
+
+                                                          child:Chewie( controller: chewieController!,)
+
                                                         )
                                                       : Container(),
                                                   imageFile != null
@@ -973,6 +988,7 @@ class _MyHomePageState extends State<MyHomePage>
                                                               onTap: () {
                                                                 print(
                                                                     "vido link is $_video");
+                                                                Navigator.push(context, MaterialPageRoute(builder: (context)=> LocationPicker()));
                                                               },
                                                               child: Image(
                                                                 image: AssetImage(
@@ -1848,14 +1864,18 @@ class _MyHomePageState extends State<MyHomePage>
                                                     height: 25.0,
                                                   ),
                                                   GestureDetector(
-                                                    onTap: () {
+                                                    onTap: (){
                                                       print("click");
                                                       createPost();
-                                                      // setState(() {
-                                                      //
-                                                      // });
-                                                      // Navigator.pop(context);
-                                                      // postController.clear();
+                                                      setState(() {
+                                                       // Navigator.pop(context);
+                                                        postController.clear();
+                                                        imageFile = null;
+                                                        _video = null;
+                                                        _videoPlayerController!.dispose();
+                                                        location.text = "";
+                                                      });
+
                                                     },
                                                     child: Container(
                                                         alignment:
@@ -2226,9 +2246,10 @@ class _MyHomePageState extends State<MyHomePage>
                           physics: NeverScrollableScrollPhysics(),
                           itemCount: postData.length, //photoList.length,
                           itemBuilder: (context, index) {
-                            showLocation = LatLng(
-                                double.parse(postData[index]['lat_']),
-                                double.parse(postData[index]['lng_']));
+                           index !=12? showLocation = LatLng(
+                               double.parse(postData[index]['lat_']),
+                               double.parse(postData[index]['lng_'])):Container();
+
                             addres = postData[index]['postMap'].toString();
 
                             return Column(
@@ -2253,10 +2274,10 @@ class _MyHomePageState extends State<MyHomePage>
                                           ),
                                           GestureDetector(
                                             onTap: () {
-
-                                              // print(
-                                              //     postData[index]['postFile']);
                                               //
+                                              // print(
+                                              //  "Dp is ==== ${ postData[index]['dp']}");
+
                                               // print(postData[index]['postFile']
                                               //     .split(".")
                                               //     .last);
@@ -2268,9 +2289,13 @@ class _MyHomePageState extends State<MyHomePage>
                                                 color: Colors.red,
                                                 shape: BoxShape.circle,
                                                 image: DecorationImage(
-                                                  image: NetworkImage(
+                                                  image: index !=12?
+                                                  NetworkImage(
                                                     postData[index]['publisher']
                                                         ['avatar'],
+                                                  ): NetworkImage(
+                                                      StaticInfo.imagesUrl+  postData[index]['dp']
+
                                                   ),
                                                   //   fit: BoxFit.fill
                                                 ),
@@ -2287,6 +2312,7 @@ class _MyHomePageState extends State<MyHomePage>
                                               SizedBox(
                                                 height: height * 0.03,
                                               ),
+                                               index !=12?
                                               Text(
                                                 postData[index]['publisher']
                                                     ['username'],
@@ -2295,12 +2321,20 @@ class _MyHomePageState extends State<MyHomePage>
                                                   fontSize: 14.0,
                                                   fontWeight: FontWeight.bold,
                                                 ),
-                                              ),
+                                              ):Text(
+                                                 postData[index]['name'],
+                                                 style: TextStyle(
+                                                   color: Color(0xff3b3b3b),
+                                                   fontSize: 14.0,
+                                                   fontWeight: FontWeight.bold,
+                                                 ),
+                                               ),
                                               SizedBox(
                                                 height: height * 0.005,
                                               ),
                                               Row(
                                                 children: [
+                                                  index !=12?
                                                   Text(
                                                     DateFormat('hh:mm a')
                                                         .format(DateTime
@@ -2311,13 +2345,21 @@ class _MyHomePageState extends State<MyHomePage>
                                                                           [
                                                                           'time'],
                                                                     ) *
-                                                                    1000)),
+                                                                    1000)
+                                                    ),
                                                     style: TextStyle(
                                                       color:
                                                           Colors.grey.shade400,
                                                       fontSize: 12.0,
                                                       fontWeight:
                                                           FontWeight.bold,
+                                                    ),
+                                                  ):Text(
+                                                   "Sponsored",
+                                                    style: TextStyle(
+                                                      color: Color(0xff3b3b3b),
+                                                      fontSize: 14.0,
+                                                      fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
                                                   Icon(
@@ -2330,13 +2372,20 @@ class _MyHomePageState extends State<MyHomePage>
                                               SizedBox(
                                                 height: height * 0.005,
                                               ),
+                                              index!=12?
                                               Text(
                                                 "Change his profile picture",
                                                 style: TextStyle(
                                                   color: Color(0xff3b3b3b),
                                                   fontSize: 11.0,
                                                 ),
-                                              ),
+                                              ):Text(
+                                               "Hii",
+                                                style: TextStyle(
+                                                  color: Color(0xff3b3b3b),
+                                                  fontSize: 11.0,
+                                                ),
+                                              )
                                             ],
                                           ),
                                         ],
@@ -2344,6 +2393,7 @@ class _MyHomePageState extends State<MyHomePage>
                                     ),
                                   ],
                                 ),
+                                index!=12?
                                 postData[index]['postText'] != ""
                                     ? Padding(
                                         padding: const EdgeInsets.all(8.0),
@@ -2367,7 +2417,7 @@ class _MyHomePageState extends State<MyHomePage>
                                                                 'postFileThumb'] !=
                                                             ""
                                                         ? Container(
-                                                            color: kAppColor,
+                                                            color: Colors.transparent,
                                                             // height: 380.0,
                                                             child: Center(
                                                                 child:
@@ -2377,6 +2427,7 @@ class _MyHomePageState extends State<MyHomePage>
                                                                       index][
                                                                   'postFile_full'],
                                                             )))
+
                                                         : Container(
                                                             height: 300.0,
                                                             child:
@@ -2390,7 +2441,8 @@ class _MyHomePageState extends State<MyHomePage>
                                                               fit: BoxFit.cover,
                                                             ),
                                                           )
-                                                    : Container()
+                                                    : Container(),
+
 
                                                 // GestureDetector(
                                                 //   onTap: (){
@@ -2448,6 +2500,7 @@ class _MyHomePageState extends State<MyHomePage>
                                           )):
 
 
+
                                          (
                                              postData[index]['postFile_full'] !=
                                                 "" ? postData[index]['postFile']
@@ -2458,7 +2511,8 @@ class _MyHomePageState extends State<MyHomePage>
                                                             ['postFileThumb'] !=
                                                         ""
                                                     ? Container(
-                                                        color: kAppColor,
+                                                        color: Colors.transparent,
+                                                        //kAppColor,
                                                         // height: 380.0,
                                                         child: Center(
                                                             child: VideoPlay(
@@ -2505,7 +2559,15 @@ class _MyHomePageState extends State<MyHomePage>
                                                       Duration(
                                                           milliseconds: 800),
                                                   viewportFraction: 0.8,
-                                                ))),
+                                                ))):Container(
+                                    color: Colors.transparent,
+                                    //kAppColor,
+                                    // height: 380.0,
+                                    child: Center(
+                                        child: VideoPlay(
+                                          pathh: postData[index]
+                                          ['ad_media'],
+                                        ))),
                                 Container(
                                   height: height * 0.1,
                                   //width: width * 0.9,
@@ -2582,13 +2644,19 @@ class _MyHomePageState extends State<MyHomePage>
                                                     color: Colors.black,
                                                   ),
                                                 ),
+                                                index !=12?
                                                 Text(
                                                   postData[index]
                                                       ['total_comments'],
                                                   style: TextStyle(
                                                     color: Colors.black,
                                                   ),
-                                                ),
+                                                ):Text(
+                                                  "0",
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                  ),
+                                                )
                                               ],
                                             ),
                                           ),

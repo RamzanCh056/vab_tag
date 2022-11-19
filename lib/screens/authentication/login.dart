@@ -18,6 +18,20 @@ class _LoginSignupState extends State<LoginSignup> {
     return DefaultTabController(
         length: 2,
         child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            toolbarHeight: 40,
+           leading:  Container(
+             margin: EdgeInsets.symmetric(horizontal: 12,vertical: 12),
+             height: 20,
+             width: double.infinity,
+             child: Image(
+                 image: AssetImage(
+                   'assets/vts.png',
+                 ),
+                 fit: BoxFit.cover),
+           ),
+          ),
           body: SafeArea(
             child: SingleChildScrollView(
 
@@ -29,11 +43,11 @@ class _LoginSignupState extends State<LoginSignup> {
                       Stack(
                         children: [
                           Container(
-                            height: 200,
+                            height: 250,
                             color: Colors.white,
                             width: double.infinity,
                             child: Image(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withOpacity(0.6),
                                 colorBlendMode: BlendMode.modulate,
                                 image: AssetImage(
                                   'images/login.png',
@@ -42,7 +56,8 @@ class _LoginSignupState extends State<LoginSignup> {
                           ),
                           Positioned(
                               // bottom: 20,
-                              top: 40,
+                              top: 120,
+                              left: 20,
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
@@ -54,7 +69,8 @@ class _LoginSignupState extends State<LoginSignup> {
                                         Text("Start Vibetag",
                                             style: TextStyle(
                                                 color: HexColor("#FF9200"),
-                                                fontSize: 18)),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 22)),
                                       ],
                                     ),
                                     Row(
@@ -74,7 +90,7 @@ class _LoginSignupState extends State<LoginSignup> {
                       Container(
                         child: TabBar(
                           labelColor: Colors.white,
-                          unselectedLabelColor: Colors.grey,
+                          unselectedLabelColor: Colors.white54,
                           indicatorColor: Colors.white,
                           tabs: [
                             Tab(text: "Log In"),

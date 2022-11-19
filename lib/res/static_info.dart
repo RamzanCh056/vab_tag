@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 class StaticInfo{
   static String baseUrl = 'https://vibetag.com/app_api.php';
+ static String imagesUrl = "https://vibetagspace.nyc3.digitaloceanspaces.com/";
   static var userId;
   static var userIdLogin;
   static var PostId;
