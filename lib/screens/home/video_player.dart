@@ -80,7 +80,9 @@ class _VideoPlayState extends State<VideoPlay> {
           return const CircularProgressIndicator();
         } else {
           return SizedBox(
-            height:controller!.value.size.height,
+            height:
+            //350,
+            controller!.value.size.height >450? 350:controller!.value.size.height,
             //controller!.value.size.height,
             width:   controller!.value.size.width,
             //double.infinity,

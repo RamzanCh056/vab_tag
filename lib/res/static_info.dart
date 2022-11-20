@@ -4,6 +4,7 @@ class StaticInfo{
  static String imagesUrl = "https://vibetagspace.nyc3.digitaloceanspaces.com/";
   static var userId;
   static var userIdLogin;
+  static var userSequreLogin;
   static var PostId;
   static var commentId;
 }

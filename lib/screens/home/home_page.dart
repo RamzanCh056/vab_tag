@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chewie/chewie.dart';
@@ -69,15 +68,21 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void initState() {
+
+
     // loadVideoPlayer();
     //print("init called");
-    // SharedPreferences.getInstance().then((value) {
-    //   preferences = value;
-    //   setState(() {});
-    // });
+    SharedPreferences.getInstance().then((value) {
+      preferences = value;
+      setState(() {
+      });
+    });
+    print('lOGIN ID IN Home ${StaticInfo.userIdLogin}');
+
     getUserData();
     getHomeData();
     setState(() {});
+
     // _timer = Timer.periodic(
     //   const Duration(seconds: 2),
     //   (Timer t) => updateState(),
@@ -90,7 +95,12 @@ class _MyHomePageState extends State<MyHomePage>
 
     super.initState();
   }
-
+   // sharedPref() async{
+   //   SharedPreferences preferences = await SharedPreferences.getInstance();
+   //   StaticInfo.userIdLogin = preferences.getString('LoginId').toString();
+   //   print('lOGIN ID IN Home ${StaticInfo.userIdLogin}');
+   //
+   // }
   // loadVideoPlayer(){
   //   controller = VideoPlayerController.asset(videoFile.toString());
   //   controller.addListener(() {
@@ -131,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage>
         'POST', Uri.parse('https://vibetag.com/app_api.php'));
     request.fields.addAll({
       'type': 'get_home_posts',
-      'user_id': StaticInfo.userIdLogin,
+      'user_id': StaticInfo.userIdLogin.toString(),
     });
 
     request.headers.addAll(headers);
@@ -160,8 +170,8 @@ class _MyHomePageState extends State<MyHomePage>
         'POST', Uri.parse('https://vibetag.com/app_api.php'));
     request.fields.addAll({
       'type': 'get_user_data',
-      'user_profile_id': StaticInfo.userIdLogin,
-      'user_id': StaticInfo.userIdLogin,
+      'user_profile_id': StaticInfo.userIdLogin.toString(),
+      'user_id': StaticInfo.userIdLogin.toString(),
     });
 
     request.headers.addAll(headers);
@@ -196,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage>
     request.fields.addAll({
 
       'type': 'new_post',
-      'user_id': StaticInfo.userIdLogin,
+      'user_id': StaticInfo.userIdLogin.toString(),
       'postText': postController.text,
       'page_id': '',
       'event_id': '',
@@ -245,15 +255,7 @@ class _MyHomePageState extends State<MyHomePage>
       setState(() {
         isLoad = false;
       });
-      setState(() {
-        Navigator.pop(context);
-        postController.clear();
-        imageFile = null;
-        _video = null;
-        _videoPlayerController!.dispose();
-        location.text = "";
 
-      });
 
 
     } else {
@@ -1867,14 +1869,14 @@ class _MyHomePageState extends State<MyHomePage>
                                                     onTap: (){
                                                       print("click");
                                                       createPost();
-                                                      setState(() {
-                                                       // Navigator.pop(context);
-                                                        postController.clear();
-                                                        imageFile = null;
-                                                        _video = null;
-                                                        _videoPlayerController!.dispose();
-                                                        location.text = "";
-                                                      });
+                                                      // setState(() {
+                                                      //  // Navigator.pop(context);
+                                                      //   postController.clear();
+                                                      //   imageFile = null;
+                                                      //   _video = null;
+                                                      //   _videoPlayerController!.dispose();
+                                                      //   location.text = "";
+                                                      // });
 
                                                     },
                                                     child: Container(
